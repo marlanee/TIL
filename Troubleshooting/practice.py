@@ -17,9 +17,10 @@
 T = int(input())   # 두통을 알리는 시작 코드다.
 
 for t in range(1, T + 1):   # 두통이 반복되는 듯 하다.
-    N = int(input())
+    N = int(input())   # T번 만큼 반복해서 숫자를 입력 후 N 변수로 선언
 
     grid = [[0] * N for _ in range(N)]   # 내가 생각한게 맞았다. 행렬의 모습이었다. 정사각형 모양으로 0 채우기
+
 
     # 방향 꺾기 코드 입력 / 우 -> 하 -> 좌 -> 상 순서라고 한다.
     dr = [0, 1, 0, -1]   # 행(row) 이동 코드
@@ -28,7 +29,7 @@ for t in range(1, T + 1):   # 두통이 반복되는 듯 하다.
     r, c = 0, 0   # 와, 뭔지 모르겠지만 시작 위치라고 한다. (0행 0열)
     dist = 0   # 시작 방향이라고 한다. (0: 오른쪽)
 
-    for num in range(1, N * N + 1):
+    for num in range(1, N * N + 1):   # 반복 해야할 총 숫자는 N * N개가 맞음. 그만큼 반복시킨다.
         grid[r][c] = num  # 현재 위치에 숫자를 적었다.
 
         nr = r + dr[dist]   # what the hell? 이게 다음 이동할 위치라고 한다.
@@ -45,4 +46,3 @@ for t in range(1, T + 1):   # 두통이 반복되는 듯 하다.
     print(f"#{t}")
     for row in grid:
         print(*row)   # 리스트 요소들을 공백으로 구분해서 출력
-
