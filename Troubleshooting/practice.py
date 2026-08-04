@@ -1,34 +1,22 @@
-def solution(genres, plays):
-    total_genres = {}   # 장르들의 총 재생횟수를 담는 딕셔너리 생성
-    total_plays = {}    # 노래들의 재생횟수와 index를 담는 딕셔너리 생성
+# 문자열에서 반복되는 패턴의 길이 구하기. 마디의 길이는 최대 10, 문자열 길이는 30
 
-    for i in range(len(genres)):
-        g = genres[i]
-        p = plays[i]
-        total_genres[g] = total_genres.get(g, 0) + p   # 장르들의 총 재생횟수를 딕셔너리로 다 담았다.
+# T = int(input())
+# for i in range(1, T + 1):
+#   test_str = input()   # 문자열을 T번만큼 입력받으려고 작성한 코드임.
+#   set_str = set(test_str)
+#   print(set_str)
+#   print(f"#{i} {len(set_str)}")
+# 이게 아니다. 세트가 아니다. SAMSUNG 같은 경우 S가 모두 날아간다.
 
-    # 이제, 그 딕셔너리를 정렬하자. value 내림차순으로.
-    songs = sorted(total_genres.keys(), key=lambda x : total_genres[x], reverse=True)    # 만들어졌다. 그 녀석이. 리스트로 말이다.
+T = int(input())
+for i in range(1, T + 1):
+  test_str = input()   # 문자열을 T번만큼 입력받으려고 작성한 코드임.
+  # 슬라이싱으로 하드 코딩은 하기 싫다. 뭐 방법이 없을까?
+  # 모르면 하드 슬라이싱이지 뭐. 하자.
+  for x in range(1, 11):
+    slice_str = test_str[:x]
+    count_str = len(test_str) // x
 
-    # 이제 total_plays를 담아보자.
-    for i in range(len(genres)):
-        g = genres[i]   # 변수는 새로 지정해야 한다.
-        p = plays[i]
-        total_plays.setdefault(g, [])
-        total_plays[g].append((p, i))
-
-    # 이제 total_plays를 정렬하자. 장르별로, 재생순서는 내림차순으로, 인덱스는 오름차순으로
-    for z in songs:
-        song_plays = sorted(total_plays[z], key=lambda y : (-y[0], y[1]))   # [[(300, 1,)(200, 2)], [(300, 1), (200, 2)]]
-
-    answer = []
-    for song in song_plays[:2]:
-        return answer.append(song)
-
-
-    return answer
-
-print(solution(["classic", "pop", "classic", "classic", "pop"], [500, 600, 150, 800, 2500]))
-
-
-            
+    if test_str[:x * count_str] == slice_str * count_str:
+      print(f"#{i} {x}")
+      break
