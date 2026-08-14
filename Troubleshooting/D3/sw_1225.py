@@ -1,4 +1,5 @@
 # 26-08-13. 1차 시도: PASS (30분 소요)
+# 26-08-14. 2차 시도: PASS (10분 소요)
 # 암호를 생성해야 하는 문제임.
 # 8개의 수를 갖고, 0이 될때까지 만들어야함
 # 그 후 암호를 반환해야함
@@ -23,25 +24,46 @@
 # 다 풀었다. Gemini가 잘했다고 칭찬해줬다. 
 # 그런데 더 좋은 방법이 있다고 한다. 하.
 
-# 아래는 gemini의 풀이 방식이다.
-from collections import deque   # 양방향 큐인 deque를 사용한다.
+# # 아래는 gemini의 풀이 방식이다.
+# from collections import deque   # 양방향 큐인 deque를 사용한다.
+
+# for i in range(1, 11):
+#     _ = int(input())
+
+#     queue = deque(map(int, input().split())) # 리스트가 아니라 deque를 쓰네? 뭐가 queue에 저장되지? 얘 type은 뭐지?
+
+#     sub = 1
+
+#     while True:
+#         val = queue.popleft - sub   # pop(0)메서드와 동일하다. 다만 훨씬 빠르다.
+
+#         if val <= 0:
+#             queue.append(0)
+#             break
+
+#         queue.append(val)
+
+#         sub = (sub % 5) + 1
+
+#     print(f'#{i}, *queue')   # 이렇게 하면 리스트가 다 언패킹되어 토해진다고 한다.
+
+from collections import deque
 
 for i in range(1, 11):
-    _ = int(input())
+    _ = input()
+    numbers = deque(map(int, input().split()))
 
-    queue = deque(map(int, input().split())) # 리스트가 아니라 deque를 쓰네? 뭐가 queue에 저장되지? 얘 type은 뭐지?
-
-    sub = 1
+    minus_num = 1
 
     while True:
-        val = queue.popleft - sub   # pop(0)메서드와 동일하다. 다만 훨씬 빠르다.
+        x = numbers.popleft() - minus_num
 
-        if val <= 0:
-            queue.append(0)
+        if x <= 0:
+            numbers.append(0)
             break
 
-        queue.append(val)
+        numbers.append(x)
 
-        sub = (sub % 5) + 1
+        minus_num = (minus_num % 5) + 1
 
-    print(f'#{i}, *queue')   # 이렇게 하면 리스트가 다 언패킹되어 토해진다고 한다.
+    print(f'#{i}', *numbers)

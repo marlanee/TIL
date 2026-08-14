@@ -1,18 +1,21 @@
-# 26-08-13. 2차 시도: 
-# 농작물 수확 문제
+# 26-08-14. 2차 시도:
+from collections import deque
 
-T = int(input())
+for i in range(1, 11):
+    _ = input()
+    numbers = deque(map(int, input().split()))
 
-for i in range(1, T + 1):   # 테스트 케이스 T만큼 반복
-    N = int(input())   # 격자의 크기
+    minus_num = 1
 
-    grid = [list(map(int, input().strip())) for _ in range(N)]   # N 크기의 격자 생성
+    while True:
+        x = numbers.popleft() - minus_num
 
-    K = N // 2
-    total_profit = 0
+        if x <= 0:
+            numbers.append(0)
+            break
 
-    for x in range(N):
-        an = abs(K - x)
-        total_profit += sum(grid[x][an:N-an])
+        numbers.append(x)
 
-    print(f'#{i} {total_profit}')
+        minus_num = (minus_num % 5) + 1
+
+    print(f'#{i}', *numbers)
