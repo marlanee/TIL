@@ -1,4 +1,5 @@
 # 2026-08-18. 1차 시도: PASS(80분 소요)
+# 2026-08-19. 2차 시도: PASS
 
 # T = int(input())
 
@@ -27,32 +28,27 @@
 #                 break
 
 # 솔직히 자신 없었다. 어찌저찌 돌아간다 해도 이건 거의 실패했다.
-# 아래는 gemini의 코드다
-
-PATTERNS = {
-    '0001101' : 0, '0011001': 1, '0010011': 2, '0111101' : 3, '0100011': 4,
-    '0110001' : 5, '0101111': 6, '0111011': 7, '0110111': 8, '0001011': 9
-}   # 변하지 않는 값이라 변수명을 대문자로 선언. 메모리 아끼려고 딕셔너리 형태로 선언
+password = {'0001101' : 0, '0011001': 1, '0010011': 2, '0111101': 3, '0100011': 4,
+            '0110001' : 5, '0101111': 6, '0111011': 7, '0110111': 8, '0001011': 9}
 
 T = int(input())
 for tc in range(1, T + 1):
     N, M = map(int, input().split())
     grid = [input().strip() for _ in range(N)]
 
-    for row in grid:
-        if '1' in row:
-            end_idx = row.rindex('1')
-            code = [
-                PATTERNS[row[end_idx - 55 + 7 * y : end_idx - 48 + 7 * y]]
-                for y in range(8)
-            ]
+    result = 0
+    result_list = []
 
-            odd_sum = sum(code[0::2])
-            even_sum = sum(code[1::2])
-
-            if (odd_sum * 3 + even_sum) % 10 == 0:
-                print(f'#{tc} {sum(code)}')
+    for i in grid:
+        if '1' in i:
+            ed = i.rindex('1')
+            for x in range(8):
+                result_list.append(password[i[ed - 55 + 7 * x: ed - 48 + 7 * x]])
+            sum_odd = sum(result_list[::2]) * 3
+            sum_even = sum(result_list[1::2])
+            result = sum_odd + sum_even
+            if result % 10 == 0:
+                print(f'#{tc} {sum(result_list)}')
             else:
                 print(f'#{tc} 0')
-
             break
