@@ -1,4 +1,5 @@
 # 2026-08-19. 1차 시도: FAIL 줜나 어렵다
+# 2026-08-20. 2차 시도: PASS(40분)
 
 # T = int(input())
 # for i in range(1, T + 1):
@@ -61,27 +62,29 @@
 #     print(f'#{tc} {max_result}')
 
 # BFS(반복문 + set)
+
 T = int(input())
 for tc in range(1, T + 1):
-    N_str, L_str = input().split()   # split은 리스트를 만든다. 리스트에 해당하는 요소들을 하나씩 변수에 담아 선언하는 것이다.
-    L = int(L_str)
+    n_str, t_str = input().split()
+    t = int(t_str)
 
-    current_states = {N_str}   # 딕셔너리가 아니다. 세트다.
+    # 완전탐색 or BFS
+    # 발생할 수 있는 모든 케이스를 구한 뒤, 최댓값을 출력한다
+    current_num  = {n_str}
 
-    length = len(N_str)
-    for _ in range(L):
-        next_states = set()
+    # 탐색을 할 때에는 정수형으로 형변환 할 필요는 없어 보인다.
+    ln = len(n_str)
 
-        for state in current_states:
-            lst = list(state)   # 문자열을 리스트에 담으면 한 글자씩 쪼개져서 담긴다.
+    for i in range(t):
+        find_set = set()
+        for z in current_num:
+            zl = list(z)
+            for x in range(ln -1):
+                for y in range(x + 1, ln):   # x와 y가 같으면 안된다. 1 대신 x + 1
+                    zl[x], zl[y] = zl[y], zl[x]
+                    find_set.add(''.join(zl))
+                    zl[y], zl[x] = zl[x], zl[y]
 
-            for i in range(length - 1): 
-                for j in range(i + 1, length): 
-                    lst[i], lst[j] = lst[j], lst[i]
-                    next_states.add(''.join(lst))
-                    lst[i], lst[j] = lst[j], lst[i]
+        current_num = find_set
 
-        current_states = next_states
-
-    max_result = max(map(int, current_states))
-    print(f'#{tc} {max_result}')
+    print(f'#{tc} {max(map(int, current_num))}')
