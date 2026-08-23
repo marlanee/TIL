@@ -24,7 +24,7 @@
 # 짜증나. 분노가 차오른다. 이런 문제도 못 풀다니.
 # 아래는 Gemini의 코드다
 def solve_n_queen(row, n, used_col, used_diag1, used_diag2):
-    if row == n:   # 체스판이 1일 때는 로직이 통하지 않나봐 ㅋㅋ 미리 컷해버리네.
+    if row == n:
         return 1
 
     count = 0
