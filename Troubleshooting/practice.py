@@ -1,3 +1,3 @@
 a = ['a', 'b', 'c', 'd']
-b = ''.join(a)
-print(b)
+for i, x in enumerate(a):
+    print(i, x)
