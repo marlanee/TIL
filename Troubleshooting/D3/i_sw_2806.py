@@ -1,4 +1,5 @@
 # 2026-08-19. 1차 시도: FAIL 피드백: None
+# 2026-08-25. 2차 시도: FAIL
 # N-Queen
 # 희한한 문제네. 퀸의 이동 방식을 모두가 알고 있다고 생각하는건가?
 # N * N 체스판에서 N개의 퀸을 배치했을 때, 퀸들끼리 공격이 안되게 놓는 경우의 수를 구하시오
@@ -23,28 +24,61 @@
 
 # 짜증나. 분노가 차오른다. 이런 문제도 못 풀다니.
 # 아래는 Gemini의 코드다
-def solve_n_queen(row, n, used_col, used_diag1, used_diag2):
-    if row == n:
+# def solve_n_queen(row, n, used_col, used_diag1, used_diag2):
+#     if row == n:
+#         return 1
+
+#     count = 0
+#     for col in range(n):
+#         d1 = row + col
+#         d2 = row - col + (N - 1)   # 이건 뭐지? 뒤로부터 세는 변수? 
+
+#         if not used_col[col] and not used_diag1[d1] and not used_diag2[d2]:   # 세 리스트에 전부 True가 없을 경우
+#             used_col[col] = used_diag1[d1] = used_diag2[d2] = True   # 이건 뭐지? 세 리스트 요소를 한 번에 True로 바꾸는거야? 맞네. 이런게 가능하다니.
+#             count += solve_n_queen(row + 1, n, used_col, used_diag1, used_diag2)
+#             used_col[col] = used_diag1[d1] = used_diag2[d2] = False
+
+#     return count
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N = int(input())
+#     used_col = [False] * N
+#     used_diag1 = [False] * (2 * N - 1)   # 왜 2*N -1이지? 왜 False로 가득한 리스트를 만들었지?
+#     used_diag2 = [False] * (2 * N - 1)
+
+#     ans = solve_n_queen(0, N, used_col, used_diag1, used_diag2)
+#     print(f'#{tc} {ans}')
+
+# 미루고 미루던 체스 문제다.
+# 완전 탐색이 최선의 풀이 방법인 그 녀석 말이다.
+# 마음의 짐이 된 녀석을 내려놓을 때가 되었다.
+
+def chess(r, n, row, test1, test2):
+    if r == n:
         return 1
 
     count = 0
-    for col in range(n):
-        d1 = row + col
-        d2 = row - col + (N - 1)   # 이건 뭐지? 뒤로부터 세는 변수? 
 
-        if not used_col[col] and not used_diag1[d1] and not used_diag2[d2]:   # 세 리스트에 전부 True가 없을 경우
-            used_col[col] = used_diag1[d1] = used_diag2[d2] = True   # 이건 뭐지? 세 리스트 요소를 한 번에 True로 바꾸는거야? 맞네. 이런게 가능하다니.
-            count += solve_n_queen(row + 1, n, used_col, used_diag1, used_diag2)
-            used_col[col] = used_diag1[d1] = used_diag2[d2] = False
+    for i in range(n):
+        d1 = r + i
+        d2 = r - i + (N - 1)   # d1, d2변수가 왜 필요한지 모르겠다.
+
+        if not row[i] and not test1[d1] and not test2[d2]:
+            row[i] = test1[d1] = test2[d2] = True
+            count += chess(r + 1, n, row, test1, test2)
+            row[i] = test1[d1] = test2[d2] = False
 
     return count
+    
 
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
-    used_col = [False] * N
-    used_diag1 = [False] * (2 * N - 1)   # 왜 2*N -1이지? 왜 False로 가득한 리스트를 만들었지?
-    used_diag2 = [False] * (2 * N - 1)
 
-    ans = solve_n_queen(0, N, used_col, used_diag1, used_diag2)
+    row = [False] * N
+    test1 = [False] * (2 * N -1)
+    test2 = [False] * (2 * N -1)    # 나는 아직도 왜 test1, 2가 필요한 코드인지 모른다.
+
+    ans = chess(0, N, row, test1, test2)
     print(f'#{tc} {ans}')

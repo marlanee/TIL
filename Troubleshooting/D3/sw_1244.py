@@ -1,5 +1,6 @@
 # 2026-08-19. 1차 시도: FAIL 줜나 어렵다
 # 2026-08-20. 2차 시도: PASS(40분)
+# 2026-08-25. 3차 시도: PASS(15분)
 
 # T = int(input())
 # for i in range(1, T + 1):
@@ -63,28 +64,55 @@
 
 # BFS(반복문 + set)
 
+# T = int(input())
+# for tc in range(1, T + 1):
+#     n_str, t_str = input().split()
+#     t = int(t_str)
+
+#     # 완전탐색 or BFS
+#     # 발생할 수 있는 모든 케이스를 구한 뒤, 최댓값을 출력한다
+#     current_num  = {n_str}
+
+#     # 탐색을 할 때에는 정수형으로 형변환 할 필요는 없어 보인다.
+#     ln = len(n_str)
+
+#     for i in range(t):
+#         find_set = set()
+#         for z in current_num:
+#             zl = list(z)
+#             for x in range(ln -1):
+#                 for y in range(x + 1, ln):   # x와 y가 같으면 안된다. 1 대신 x + 1
+#                     zl[x], zl[y] = zl[y], zl[x]
+#                     find_set.add(''.join(zl))
+#                     zl[y], zl[x] = zl[x], zl[y]
+
+#         current_num = find_set
+
+#     print(f'#{tc} {max(map(int, current_num))}')
+
+# 아 나 이 문제 뭔지 알아. 완전탐색이잖아.
+
 T = int(input())
 for tc in range(1, T + 1):
-    n_str, t_str = input().split()
-    t = int(t_str)
+    numbers, str_N = input().split()
+    N = int(str_N)
 
-    # 완전탐색 or BFS
-    # 발생할 수 있는 모든 케이스를 구한 뒤, 최댓값을 출력한다
-    current_num  = {n_str}
+    # 모든 경우의 수를 구해서 최댓값을 반환하면 된다.
+    # DFS/완전탐색 또는 BFS 방법이 있었던 것 같다.
+    # BFS 방식을 써야지.
 
-    # 탐색을 할 때에는 정수형으로 형변환 할 필요는 없어 보인다.
-    ln = len(n_str)
+    find_max_set = {numbers}
+    ln = len(numbers)
 
-    for i in range(t):
-        find_set = set()
-        for z in current_num:
-            zl = list(z)
-            for x in range(ln -1):
-                for y in range(x + 1, ln):   # x와 y가 같으면 안된다. 1 대신 x + 1
-                    zl[x], zl[y] = zl[y], zl[x]
-                    find_set.add(''.join(zl))
-                    zl[y], zl[x] = zl[x], zl[y]
+    for i in range(N):
+        current_set = set()
+        for n in find_max_set:
+            nl = list(n)
+            for x in range(0, ln -1):   # 한 자리씩 바꾸는 코드
+                for y in range(x + 1, ln):
+                    nl[x], nl[y] = nl[y], nl[x]
+                    current_set.add(''.join(nl))
+                    nl[y], nl[x] = nl[x], nl[y]
+        find_max_set = current_set
 
-        current_num = find_set
-
-    print(f'#{tc} {max(map(int, current_num))}')
+    print(f'#{tc} {max(map(int, find_max_set))}')
