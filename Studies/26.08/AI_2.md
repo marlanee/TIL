@@ -83,3 +83,42 @@
 3. Instruction-tuning: 지시문-응답 쌍으로 모델 미세조정
 4. RLHF: 사람 피드백 반영
 5. DPO: 강화학습 단계 삭제, 사람 선호 데이터 직접 활용
+### 7-2 Retrieval-augmented LM(RAG)
+1. RALM: 외부 데이터 저장소 활용(WEB) 추론
+2. IR: IR의 목적은 검색 질의와 관련성이 가장 높은 정보 제공
+3. Bi-encoder / Cross-encoder
+   1. Bi-encoder: 별도 임베딩, 빠른 탐색
+   2. Cross-encoder: 통합 입력, 높은 정확도
+4. Sparse Retriever: 의미적 유사성보다 어휘적 매칭에 강함
+5. Dense Retriever(임베딩 기반 탐색)
+   1. 장점: 의미적 유사성 / 동의어, 다양한 표현 효과적 처리
+### 7-3 LLMs with Tool Usage
+1. Tool Learning: 도구 사용 학습 특화 훈련 필요
+2. Toolformer 순서: 샘플링 -> API 실행 -> 필터링 -> 데이터셋 생성
+3. MCP의 두 Layer
+   1. Data Layer: JSON 메시지 형식 및 리소스
+   2. Transport Layer: 실제 데이터 전송 담당
+4. ToolLLM: 별도 튜닝 학습이 필요
+5. 웹 에이전트(Web Shepherd)
+   1. 주요 요소가 아닌 것: 사용자 질의에 대한 사전 정의된 정답
+### 7-4 AI Agents & Langchain
+1. Local Planning / Global Planning
+   1. Local: 단계별 하나의 툴만 결정
+   2. Global: 전체 경로 설계
+2. LangCahin: LLM, DB, 외부 도구 등 다양한 요소 연결
+## 8-1 Agent 모델: Introduction to AI Agent
+1. AI agent: 추론하며 도구도 쓰는 그런 아이
+### 8-2 Multi-Agent System
+1. 다중 에이전트 시스템 구성 요소
+   1. 아닌 것: 데이터베이스
+2. 다중 에이전트 협업의 반복적 의사결정
+   1. 과정에 포함되지 않는 단계: 데이터 삭제
+3. MCP(모델 컨텍스트 프로토콜): 표준화로 도구 간 연결 복잡도 M * N -> M + N으로 낮춤
+4. Toolformer
+   1. 주요 특징이 아닌 것: 인간 개입 없이 모델 자체가 API 호출
+5. Search-R1 접근법의 GRPO: 여러 실행 결과 비교, 상대적 우수 응답에 보상 부여
+### 8-3 Memory & Tool in Multi Agent
+1. 강화학습(RL) 사용 LLM의 예시가 아닌 것: VectorDB
+### 8-4 Reasoning and Planning in AI
+1. LLM 에이전트의 계획 수립 기법
+   1. 해당되지 않는 것: Chain-of-Thought(tot) Prompting
