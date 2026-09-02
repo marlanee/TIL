@@ -1,36 +1,28 @@
-<<<<<<< HEAD
+# 전기 버스. 풀이 시간: 16:45
 
-# 달팽이 문제 복습. 1차 시도:
-# 달팽이는 2차원 행렬 문제다.
-# 벽이나 숫자를 만나면 꺾어야 한다.
-# 진행 방향이 우 하 좌 상 으로 정해져 있다.
-# 방향을 담는 리스트를 만들고, 벽이나 숫자에 막히면 다음 리스트 요소로 넘어간다.
+# 1. 목표: 최소한의 충전 횟수로 목적지에 도달하고, 충전 회수를 구하는 것
+# 2. 구조: 
+    # 1. 버스의 위치를 l로 설정
+    # 2. l + K < 충전기 거리일 경우 0 출력
+    # 3. l + K 거리 안에 충전기가 여러개 일 경우 l + K 내의 가장 큰 충전기로 이동
+    # 4. l + K >= N 일 경우 종료
+# 3. 종료: l + K >= N 일 경우.
+
 T = int(input())
-
 for tc in range(1, T + 1):
-  N = int(input())
-  grid = [[0] * N for _ in range(N)]  # 2차원 행렬 선언
+    K, N, M = map(int, input().split()) # K는 최대 이동 거리, N은 정류장의 개수, M은 충전기의 개수
+    stations = list(map(int, input().split()))  # 충전기의 위치 stations의 약자
 
-  x, y = 0, 0   # 달팽이의 첫 위치
-  dist = 0  # 진행 방향 결정요소
+    l = 0   # 버스의 출발 위치
 
-  nx = [1, 0, -1, 0]  # x축 진행방향
-  ny = [0, 1, 0, -1]  # y축 진행방향
+    for i in range(M):  # 충전기를 둘러볼 것이다.
+        if l + K < stations[i]: # 첫 출발시 충전기가 더 멀면 0 출력
+            print(f'{tc} 0')
+        else:
+            for s in stations:
+                max_s = s
+                
 
-  for i in range(1, N * N + 1):
-    grid[y][x] = i
-    cx = x + nx[dist]
-    cy = y + ny[dist]
+        
 
-    if cx < 0 or cx >= N or cy < 0 or cy >= N or grid[cy][cx] != 0: # 달팽이가 벽이나 숫자를 만날 경우
-      dist = (dist + 1) % 4 # 상하좌우를 모두 돈 이후에는 처음부터 다시 반복
-      cx = x + nx[dist]
-      cy = y + ny[dist]
 
-    x = cx
-    y = cy
-
-  print(f'#{tc}')
-  for x in grid:
-    print(*x)
->>>>>>> 25eacba8a816aa89d2578f9d73f194468f3ef951

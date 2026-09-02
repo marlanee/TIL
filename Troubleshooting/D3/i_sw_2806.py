@@ -54,31 +54,81 @@
 # 완전 탐색이 최선의 풀이 방법인 그 녀석 말이다.
 # 마음의 짐이 된 녀석을 내려놓을 때가 되었다.
 
-def chess(r, n, row, test1, test2):
-    if r == n:
+# def chess(r, n, row, test1, test2):
+#     if r == n:
+#         return 1
+
+#     count = 0
+
+#     for i in range(n):
+#         d1 = r + i
+#         d2 = r - i + (N - 1)   # d1, d2변수가 왜 필요한지 모르겠다.
+
+#         if not row[i] and not test1[d1] and not test2[d2]:
+#             row[i] = test1[d1] = test2[d2] = True
+#             count += chess(r + 1, n, row, test1, test2)
+#             row[i] = test1[d1] = test2[d2] = False
+
+#     return count
+    
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N = int(input())
+
+#     row = [False] * N
+#     test1 = [False] * (2 * N -1)
+#     test2 = [False] * (2 * N -1)    # 나는 아직도 왜 test1, 2가 필요한 코드인지 모른다.
+
+#     ans = chess(0, N, row, test1, test2)
+#     print(f'#{tc} {ans}')
+
+# N-Queen. 풀이 시간: Fail
+
+# 그 녀석을 다시 만났다.
+# 날 일주일간 괴롭힌 그 녀석.
+# 지금의 나는 충분히 해결할 수 있다.
+# 라고 믿어야 한다.
+
+# 1. 목표: N * N 행렬 체스판에 N 개의 퀸을 서로 공격하지 못하게 두는 경우의 수를 구하는 것
+# 2. 구조: 완전 탐색. 
+    # 1. 일단 첫 번 째 칸에 퀸을 두고, 다음 열로 넘어간다. 
+    # 2. 다음 열의 첫 번쨰 칸부터 마지막 칸 까지 퀸을 둔다. 놓을 수 있다면 놓고, 아니면 되돌아간다.
+    # 3. 이것을 마지막 열까지 반복한다. 성공했다면 count에 1을 더한다.
+# 3. 종료 조건: 첫 번째 재귀함수의 col이 N - 1열에 도달 후 모든 작업이 종료되었을 때
+
+# 아래는 GPT의 코드다.
+def Queen(row):
+    if row == N:
         return 1
 
     count = 0
 
-    for i in range(n):
-        d1 = r + i
-        d2 = r - i + (N - 1)   # d1, d2변수가 왜 필요한지 모르겠다.
+    for col in range(N):
+        d1 = row + col
+        d2 = row - col + N -1
 
-        if not row[i] and not test1[d1] and not test2[d2]:
-            row[i] = test1[d1] = test2[d2] = True
-            count += chess(r + 1, n, row, test1, test2)
-            row[i] = test1[d1] = test2[d2] = False
+        if not used_col[col] and not used_diag1[d1] and not used_diag2[d2]:
+            used_col[col] = True
+            used_diag1[d1] = True
+            used_diag2[d2] = True
+
+            count += Queen(row + 1)
+
+            used_col[col] = False
+            used_diag1[d1] = False
+            used_diag2[d2] = False
 
     return count
-    
 
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
 
-    row = [False] * N
-    test1 = [False] * (2 * N -1)
-    test2 = [False] * (2 * N -1)    # 나는 아직도 왜 test1, 2가 필요한 코드인지 모른다.
+    used_col = [False] * N    # 내가 왜 이런 False 리스트를 작성하고 있는지 이유를 모르겠다.
+    used_diag1 = [False] * (2 * N - 1)  # 내가 왜 이런 False 리스트를 작성하고 있는지 이유를 모르겠다.
+    used_diag2 = [False] * (2 * N - 1)  # 내가 왜 이런 False 리스트를 작성하고 있는지 이유를 모르겠다.
 
-    ans = chess(0, N, row, test1, test2)
-    print(f'#{tc} {ans}')
+    answer = Queen(0)
+
+    print(f'#{tc} {answer}')
