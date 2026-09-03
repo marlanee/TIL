@@ -13,16 +13,18 @@ for tc in range(1, T + 1):
     K, N, M = map(int, input().split()) # K는 최대 이동 거리, N은 정류장의 개수, M은 충전기의 개수
     stations = list(map(int, input().split()))  # 충전기의 위치 stations의 약자
 
-    l = 0   # 버스의 출발 위치
+    current = 0   # 버스의 출발 위치
+    count = 0   # 충전을 몇 번 했는지를 담는 변수
+    rs = stations[::-1]
 
-    for i in range(M):  # 충전기를 둘러볼 것이다.
-        if l + K < stations[i]: # 첫 출발시 충전기가 더 멀면 0 출력
-            print(f'{tc} 0')
+    while current + K < N:
+        for i in range(M):
+            if current + K >= rs[i] and current < rs[i]:
+                current = rs[i]
+                count += 1
+                break
         else:
-            for s in stations:
-                max_s = s
-                
-
+            count = 0
+            break
         
-
-
+    print(f'#{tc} {count}')
