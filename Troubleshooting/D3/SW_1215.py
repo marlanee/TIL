@@ -1,5 +1,6 @@
 # 2026-08-12  # 1차 시도: Fail
 # 26-08-13. 2차 시도: Neutral
+# 26-09-03. 복습: PASS(11분) / 안녕. 이제는 쉽다
 
 # 인생 최초 D3 문제 도전
 # 회문 문제
@@ -38,23 +39,44 @@
 
 #     print(f'#{i} {total_count}')
 
-for i in range(1, 11):
-    N = int(input())
+# for i in range(1, 11):
+#     N = int(input())
 
-    grid = [list(input()) for _ in range(8)]   # 격자 생성
+#     grid = [list(input()) for _ in range(8)]   # 격자 생성
 
-    # 가로와 세로를 분리해서 길이에 맞는 순회문을 찾아야 한다.
-    total_num = 0
-    # 아래는 가로 순회문을 찾는 코드이다.
-    for c in range(8):
-        for r in range(9 - N):
-            sub_str = grid[c][r:r + N]
-            if sub_str == sub_str[::-1]:
-                total_num += 1
-    # 아래는 세로 순회문을 찾는 코드이다.
-    for r in range(8):   # 젠장, 코드를 잘못 적어서 가로를 한번 더 순회했다.
-        for c in range(9 - N):
-            sub_list = [grid[c + x][r] for x in range(N)]
-            if sub_list == sub_list[::-1]:
-                total_num += 1
-    print(f'#{i} {total_num}')
+#     # 가로와 세로를 분리해서 길이에 맞는 순회문을 찾아야 한다.
+#     total_num = 0
+#     # 아래는 가로 순회문을 찾는 코드이다.
+#     for c in range(8):
+#         for r in range(9 - N):
+#             sub_str = grid[c][r:r + N]
+#             if sub_str == sub_str[::-1]:
+#                 total_num += 1
+#     # 아래는 세로 순회문을 찾는 코드이다.
+#     for r in range(8):   # 젠장, 코드를 잘못 적어서 가로를 한번 더 순회했다.
+#         for c in range(9 - N):
+#             sub_list = [grid[c + x][r] for x in range(N)]
+#             if sub_list == sub_list[::-1]:
+#                 total_num += 1
+#     print(f'#{i} {total_num}')
+
+# 회문1. 복습: PASS(11분)
+
+# 목표: 주어진 길이 M 만큼의 회문을 찾아야 함. 행과 열 둘 다.
+# 구조: 열 전치로 total_grid를 만들고 리스트 슬라이싱으로 탐색
+# 종료: for r in range(2 * 8) 가 종료될 때. 회문에 해당하는 count 수를 출력
+
+for tc in range(1, 11):
+    M = int(input())
+    row_grid = [list(input()) for _ in range(8)]
+    col_grid = list(zip(*row_grid))
+    total_grid = row_grid + col_grid
+    count = 0
+
+    for r in range(16):
+        for c in range(8 - M + 1):
+            word = total_grid[r][c:c + M]
+            if word == word[::-1]:
+                count += 1
+
+    print(f'#{tc} {count}')
