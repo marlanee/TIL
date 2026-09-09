@@ -1,5 +1,7 @@
 # 보급로. 1차 시도: FAIL / 2차 시도: PASS(180분)
 # 보급로. 2차 시도: PASS(32분)
+# 보급로. 3차 시도: PASS(15분)
+# 보급로. 4차 시도: PASS(12분)
 # 인생 첫 D4 문제다. 체감이 어떨지 궁금하다. 일단 도전.
 
 # Chatgpt가 문제 풀기 전에 주석을 작성하라고 한다. 필수라고 한다. 아주 가혹한 녀석이다. 군 시절 포대장이 생각난다.
@@ -68,6 +70,57 @@
     # 6. 델타 이동 사용. cost, r, c = heapq.heappop(heap)으로 꺼내서, 델타 이동으로 최소 cost 주위의 누적합을 탐색
 # 5. 종료: heap에서 r == N - 1, c == N - 1에 해당하는 값이 튀어나왔을 경우. 
     # 1. 목적지가 heap에서 pop된 순간, 그 비용은 최솟값으로 확정된다.
+# import heapq
+
+# dr = [1, -1, 0, 0]
+# dc = [0, 0, 1, -1]
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N = int(input())
+#     grid = [list(map(int, input())) for _ in range(N)]
+
+#     INF = float('inf')
+#     dist = [[INF] * N for _ in range(N)]
+
+#     heap = [(0, 0 ,0)]  # 초기 시작시 비어있으면 안 되므로, (0, 0)의 값을 미리 넣어준다.
+
+#     dist[0][0] = 0  # 시작점까지의 최소 비용은 0이다.
+
+#     while heap:
+#         cost, r, c = heapq.heappop(heap)
+
+#         if cost > dist[r][c]:   # 구시대의 유물은 버린다.
+#             continue
+
+#         if r == N - 1 and c == N - 1:
+#             break
+
+#         for i in range(4):  # 4방향으로 탐색한다. 델타 이동
+#             nr = r + dr[i]
+#             nc = c + dc[i]
+
+#             if 0 <= nr < N and 0 <= nc < N:     # 격자를 넘어가면 안되므로, 한계 설정
+#                 new_cost = cost + grid[nr][nc]  # 이 길로 갔을 때, 그 좌표의 새로운 누적합이다.
+
+#                 if new_cost < dist[nr][nc]: # 기존에 구해둔 누적합보다 새로운 누적합이 작으면 갱신한다.
+#                     dist[nr][nc] = new_cost
+#                     heapq.heappush(heap, (new_cost, nr, nc))  # 나중에 신규 누적합 경로에서 시작할 수 있도록 heap 리스트에 추가한다.
+
+#     print(f'#{tc} {dist[N - 1][N - 1]}')
+
+# 보급로. 3차 시도: PASS(15분)
+
+# 1. 목표: 2차원 행렬에서 (0, 0)부터 (N - 1, N - 1)까지의 최소 누적합을 구하는 문제
+# 2. 상태: dist[r][c] 를 최소 누적합으로 사용한다.
+# 3. 자료 구조: grid -> 길의 비용, dist -> 길의 최소 누적합, heap -> 최소 누적합과 r, c의 정보를 담는 리스트.
+# 4. 핵심 로직
+    # 1. 가지치기. cost > dist[r][c] 일 경우 이미 낡은 값임. continue로 끊어주기
+    # 2. 누적합 갱신(relaxation), new_cost < dist[nr][nc] 일 경우 dist[nr][nc] = new_cost
+    # 3. 갱신을 했을 경우 heap 리스트에 추가. heapq.heappush(new_cost, nr, nc)
+    # 4. 델타 이동, 상하좌우
+# 5. 종료 조건: heap에서 나온 결과값이 r == c == N - 1 일 경우
+
 import heapq
 
 dr = [1, -1, 0, 0]
@@ -80,29 +133,27 @@ for tc in range(1, T + 1):
 
     INF = float('inf')
     dist = [[INF] * N for _ in range(N)]
-
-    heap = [(0, 0 ,0)]  # 초기 시작시 비어있으면 안 되므로, (0, 0)의 값을 미리 넣어준다.
-
-    dist[0][0] = 0  # 시작점까지의 최소 비용은 0이다.
+    dist[0][0] = 0
+    heap = [(0, 0, 0)]
 
     while heap:
         cost, r, c = heapq.heappop(heap)
 
-        if cost > dist[r][c]:   # 구시대의 유물은 버린다.
+        if cost > dist[r][c]:
             continue
 
-        if r == N - 1 and c == N - 1:
+        if r == c == N - 1:
             break
 
-        for i in range(4):  # 4방향으로 탐색한다. 델타 이동
+        for i in range(4):
             nr = r + dr[i]
             nc = c + dc[i]
 
-            if 0 <= nr < N and 0 <= nc < N:     # 격자를 넘어가면 안되므로, 한계 설정
-                new_cost = cost + grid[nr][nc]  # 이 길로 갔을 때, 그 좌표의 새로운 누적합이다.
+            if 0 <= nr < N and 0 <= nc < N:
+                new_cost = cost + grid[nr][nc]
 
-                if new_cost < dist[nr][nc]: # 기존에 구해둔 누적합보다 새로운 누적합이 작으면 갱신한다.
+                if new_cost < dist[nr][nc]:
                     dist[nr][nc] = new_cost
-                    heapq.heappush(heap, (new_cost, nr, nc))  # 나중에 신규 누적합 경로에서 시작할 수 있도록 heap 리스트에 추가한다.
+                    heapq.heappush(heap, (new_cost, nr, nc))
 
     print(f'#{tc} {dist[N - 1][N - 1]}')
