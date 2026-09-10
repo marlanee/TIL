@@ -1,6 +1,8 @@
 # 진기의 최고급 붕어빵. 1차 시도: PASS(30분)
+# 진기의 최고급 붕어빵. 2차 시도: PASS(15분)
 # 풀었으나, 개선점 많음.
 # 9. 10. 복습 필요
+# 졸업
 
 # 1. 목표: 붕어빵의 개수가 사람의 수보다 적으면 Impossible, 많으면 possible을 출력. / 붕어빵의 개수가 사람보다 많은지 확인
 # 2. 상태: t 변수로 시간을 관리, bread 변수로 붕어빵의 개수를 관리, people 변수로 사람 명수를 관리.
@@ -37,21 +39,48 @@
 #         print(f'#{tc} Possible')
 
 
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N, M, K = map(int, input().split())
+#     people_list = sorted(map(int, input().split()))
+
+#     result = 'Possible'
+
+#     for i in range(N):
+#         time = people_list[i]
+
+#         bread = (time // M) * K
+
+#         if bread < i + 1:
+#             result = 'Impossible'
+#             break
+
+#     print(f'#{tc} {result}')
+
+# 진기의 최고급 붕어빵. 2차 시도: PASS(15분)
+
+# 1. 목표: 손님이 도착한 시간 t에서, 붕어빵의 개수가 사람 수 이상인지 확인
+# 2. 상태: bread = (time // M) * K 으로 붕어빵의 개수 관리
+# 3. 자료구조: 손님 도착 시간을 리스트로 저장 후 오름차순 정렬
+# 4. 핵심 로직
+#     1. 손님의 도착 시간을 guests 리스트로 관리.
+#     2. 손님의 도착 인원수는 guests를 for i in range(N): 할 경우, i가 된다.
+#     3. 이 때 시간 t = guests[i]
+#     4. 가지치기. if bread < t + 1, print(), break
+# 5. 종료 조건: 반복문이 모두 돌거나 실패하면 종료
+
 T = int(input())
 for tc in range(1, T + 1):
     N, M, K = map(int, input().split())
-    people_list = sorted(map(int, input().split()))
-
-    result = 'Possible'
+    guests = sorted(map(int, input().split()))
 
     for i in range(N):
-        time = people_list[i]
-
+        time = guests[i]
         bread = (time // M) * K
 
         if bread < i + 1:
-            result = 'Impossible'
+            print(f'#{tc} Impossible')
             break
 
-    print(f'#{tc} {result}')
-
+    else:
+        print(f'#{tc} Possible')
