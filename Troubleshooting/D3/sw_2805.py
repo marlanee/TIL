@@ -1,5 +1,6 @@
 # 2026-08-12 # 1차 시도: PASS (풀이 시간:45분)
 # 26-08-13. 2차 시도: PASS
+# 3차 시도: PASS(25분)
 
 # 농작물 수확하기
 # 이번에도 2차원 행렬 문제다. 다만 크기가 항상 홀수이다. (1 ~ 49)
@@ -49,19 +50,48 @@
 
 #     print(f'#{i} {sum_total}')
 
+# T = int(input())
+
+# for i in range(1, T + 1):   # 테스트 케이스 T만큼 반복
+#     N = int(input())   # 격자의 크기
+
+#     grid = [list(map(int, input().strip())) for _ in range(N)]   # N 크기의 격자 생성
+
+#     K = N // 2
+#     total_profit = 0
+
+#     for x in range(N):
+#         an = abs(K - x)
+#         total_profit += sum(grid[x][an:N-an])
+
+#     print(f'#{i} {total_profit}')
+    
+# SWEA 2805. 농작물 수확하기
+
+# 1차 시도: PASS(25분)
+
+# 1. 목표: N x N 2차원 행렬이 주어진다. 최대 길이가 N인 마름모 안에 있는 숫자의 합을 구하라
+# 2. 상태: total = 농작물의 총 합
+# 3. 자료구조: 따로 필요하지 않음
+# 4. 핵심로직
+    # 1. start = abs(s - i)
+    # 2. end = N - abs(s - i)
+# 5. 종료 조건: 반복문이 종료되었을 때, total을 출력
+
 T = int(input())
 
-for i in range(1, T + 1):   # 테스트 케이스 T만큼 반복
-    N = int(input())   # 격자의 크기
+for tc in range(1, T + 1):
+    N = int(input())
 
-    grid = [list(map(int, input().strip())) for _ in range(N)]   # N 크기의 격자 생성
+    total = 0
+    s = N // 2
 
-    K = N // 2
-    total_profit = 0
+    for i in range(N):
+        row = list(map(int, input()))
 
-    for x in range(N):
-        an = abs(K - x)
-        total_profit += sum(grid[x][an:N-an])
+        start = abs(s - i)
+        end = N - abs(s - i)
+        
+        total += sum(row[start:end])
 
-    print(f'#{i} {total_profit}')
-    
+    print(f'#{tc} {total}')
