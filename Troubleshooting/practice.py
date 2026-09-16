@@ -1,3 +1,12 @@
-# SWEA 2819. 격자판의 숫자 이어 붙이기
+from collections import deque
 
-# 1차 시도: 16:55
+
+T = int(input())
+for tc in range(1, T + 1):
+    N, M = map(int, input().split())
+    numbers = deque(map(int, input().split()))
+
+    for i in range(M):
+        numbers.append(numbers.popleft())
+
+    print(f'#{tc} {numbers[0]}')

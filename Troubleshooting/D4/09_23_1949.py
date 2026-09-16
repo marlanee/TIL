@@ -1,6 +1,8 @@
 # 등산로 조정. 1차 시도: FAIL
 # 등산로 조정. 2차 시도: FAIL(30분) / 복습 시간(30분)
-# 26. 9. 16. 복습 필요
+# 아마도 복습 3회차. PASS(40분)
+# 9. 23. 복습 필요 / 졸업 직전
+
 
 # 1. 목표: N x N 행렬에서, 가장 높은 봉우리에서 시작해 내림차순으로 이동하며, 가장 긴 길의 길이를 구한다.
 # 2. 상태: 완전 탐색에서 필요한 정보는 좌표의 위치, 길이, 공사의 사용 여부이다.
@@ -88,57 +90,127 @@
     # 4. return한 length와 max_length를 비교해서, length > max_length 일 경우 갱신. 
 # 5. 종료 조건: 반복문의 마지막 봉우리 재귀 함수 호출이 모두 종료되었을 때
 
-def dfs(r, c, length, used):
+# def dfs(r, c, length, used):
+#     global max_length
+
+#     max_length = max(length, max_length)
+#     for i in range(4):
+#         nr = r + dr[i]
+#         nc = c + dc[i]
+
+#         if nr < 0 or nr >= N or nc < 0 or nc >= N:
+#             continue
+
+#         if visited[nr][nc]:
+#             continue
+
+#         if grid[r][c] > grid[nr][nc]:
+#             visited[nr][nc] = True
+#             dfs(nr, nc, length + 1, used)
+#             visited[nr][nc] = False
+
+#         elif grid[nr][nc] - K < grid[r][c] and used == False:
+#             original = grid[nr][nc]
+#             grid[nr][nc] = grid[r][c] - 1
+#             visited[nr][nc] = True
+#             dfs(nr, nc, length + 1, True)
+#             grid[nr][nc] = original
+#             visited[nr][nc] = False
+        
+
+# dr = [1, -1, 0, 0]
+# dc = [0, 0, 1, -1]
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N, K = map(int, input().split())
+#     grid = [list(map(int, input().split())) for _ in range(N)]
+
+#     max_length = 0
+
+#     max_num = max(map(max, grid))
+#     max_list = []
+
+#     visited = [[False] * N for _ in range(N)]
+
+#     for r in range(N):
+#         for c in range(N):
+#             if grid[r][c] == max_num:
+#                 max_list.append((r, c))
+
+#     for r, c in max_list:
+#         visited[r][c] = True
+#         dfs(r, c, 1, used=False)
+#         visited[r][c] = False
+
+#     print(f'#{tc} {max_length}')
+
+# SWEA 1949. 등산로 조성
+
+# 아마도 복습 3회차. PASS(40분)
+
+# 목표: N x N 2차원 행렬에서, 가장 높은 값의 좌표들(r, c)에서 상하좌우로 내림차순으로 이동할 때 가장 긴 길의 길이를 구하여라.
+# 상태: grid = 등산로의 숫자를 담은 행렬, visited = 이미 방문한 좌표인지 확인. 왔던 길을 가는 것을 막기 위함
+    # 1. top = 봉우리들의 시작 지점을 담은 리스트
+# 자료구조: DFS, 백트래킹, 델타 이동
+# 핵심 로직
+    # 1. if 사방이 크거나 같고 이미 공사를 했으면, 길이를 리스트에 추가하고 return
+    # 2. for i in range(4), 4방향 이동. 
+    # 3. if 뚫려 있으면 재귀 호출 (nr, nc, d + 1, used) 
+    # 4. if 막혀 있지만 공사를 안 했으면, if 공사로 갈 수 있는지 검사, grid[r][c] - 1로 숫자 변환, used = True
+    # 5. else: 공사로 갈 수 없다면 길이를 리스트에 추가하고 return
+# 종료 조건: 순회문이 종료되면 리스트 중 가장 긴 길이를 출력
+
+def path_find(r, c, length, used):
     global max_length
 
-    max_length = max(length, max_length)
+    max_length = max(max_length, length)
+
     for i in range(4):
         nr = r + dr[i]
         nc = c + dc[i]
 
-        if nr < 0 or nr >= N or nc < 0 or nc >= N:
-            continue
+        if 0 <= nr < N and 0 <= nc < N and not visited[nr][nc]:
+            if grid[nr][nc] < grid[r][c]:
+                visited[nr][nc] = True
+                path_find(nr, nc, length + 1, used)
+                visited[nr][nc] = False
 
-        if visited[nr][nc]:
-            continue
-
-        if grid[r][c] > grid[nr][nc]:
-            visited[nr][nc] = True
-            dfs(nr, nc, length + 1, used)
-            visited[nr][nc] = False
-
-        elif grid[nr][nc] - K < grid[r][c] and used == False:
-            original = grid[nr][nc]
-            grid[nr][nc] = grid[r][c] - 1
-            visited[nr][nc] = True
-            dfs(nr, nc, length + 1, True)
-            grid[nr][nc] = original
-            visited[nr][nc] = False
-        
-
+            elif not used:
+                if grid[nr][nc] - K < grid[r][c]:
+                    save = grid[nr][nc]
+                    grid[nr][nc] = grid[r][c] - 1
+                    visited[nr][nc] = True
+                    path_find(nr, nc, length + 1, True)
+                    grid[nr][nc] = save
+                    visited[nr][nc] = False
+            
 dr = [1, -1, 0, 0]
 dc = [0, 0, 1, -1]
 
 T = int(input())
 for tc in range(1, T + 1):
     N, K = map(int, input().split())
+
     grid = [list(map(int, input().split())) for _ in range(N)]
+    visited = [[False] * N for _ in range(N)]
+
+    # 봉우리들의 r, c 좌표를 찾아야겠지.
+    # 먼저 봉우리의 숫자가 뭔지 찾자.
+    top_num = max(map(max, grid))
+    top = []
+
+    for index, row in enumerate(grid):
+        for col in range(N):
+            if row[col] == top_num:
+                top.append((index, col))
 
     max_length = 0
 
-    max_num = max(map(max, grid))
-    max_list = []
-
-    visited = [[False] * N for _ in range(N)]
-
-    for r in range(N):
-        for c in range(N):
-            if grid[r][c] == max_num:
-                max_list.append((r, c))
-
-    for r, c in max_list:
+    for r, c in top:
         visited[r][c] = True
-        dfs(r, c, 1, used=False)
+        path_find(r, c, 1, False)
         visited[r][c] = False
+
 
     print(f'#{tc} {max_length}')
