@@ -2,6 +2,8 @@
 # 등산로 조정. 2차 시도: FAIL(30분) / 복습 시간(30분)
 # 아마도 복습 3회차. PASS(40분)
 # 9. 23. 복습 필요 / 졸업 직전
+# 복습: PASS(30분)
+# 졸업
 
 
 # 1. 목표: N x N 행렬에서, 가장 높은 봉우리에서 시작해 내림차순으로 이동하며, 가장 긴 길의 길이를 구한다.
@@ -161,29 +163,97 @@
     # 5. else: 공사로 갈 수 없다면 길이를 리스트에 추가하고 return
 # 종료 조건: 순회문이 종료되면 리스트 중 가장 긴 길이를 출력
 
-def path_find(r, c, length, used):
-    global max_length
+# def path_find(r, c, length, used):
+#     global max_length
 
-    max_length = max(max_length, length)
+#     max_length = max(max_length, length)
+
+#     for i in range(4):
+#         nr = r + dr[i]
+#         nc = c + dc[i]
+
+#         if 0 <= nr < N and 0 <= nc < N and not visited[nr][nc]:
+#             if grid[nr][nc] < grid[r][c]:
+#                 visited[nr][nc] = True
+#                 path_find(nr, nc, length + 1, used)
+#                 visited[nr][nc] = False
+
+#             elif not used:
+#                 if grid[nr][nc] - K < grid[r][c]:
+#                     save = grid[nr][nc]
+#                     grid[nr][nc] = grid[r][c] - 1
+#                     visited[nr][nc] = True
+#                     path_find(nr, nc, length + 1, True)
+#                     grid[nr][nc] = save
+#                     visited[nr][nc] = False
+            
+# dr = [1, -1, 0, 0]
+# dc = [0, 0, 1, -1]
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N, K = map(int, input().split())
+
+#     grid = [list(map(int, input().split())) for _ in range(N)]
+#     visited = [[False] * N for _ in range(N)]
+
+#     # 봉우리들의 r, c 좌표를 찾아야겠지.
+#     # 먼저 봉우리의 숫자가 뭔지 찾자.
+#     top_num = max(map(max, grid))
+#     top = []
+
+#     for index, row in enumerate(grid):
+#         for col in range(N):
+#             if row[col] == top_num:
+#                 top.append((index, col))
+
+#     max_length = 0
+
+#     for r, c in top:
+#         visited[r][c] = True
+#         path_find(r, c, 1, False)
+#         visited[r][c] = False
+
+
+#     print(f'#{tc} {max_length}')
+
+# SWEA 1949. 등산로 조성
+
+# 복습: PASS(30분)
+# 졸업
+
+# 목표: 임의의 숫자로 채워진 N x N 행렬에서, 내림차순으로 만들 수 있는 가장 긴 길의 길이를 구하여라.
+# 상태: visited = 방문 여부 파악. used = 공사 여부 파악, length = 현재까지 만든 길의 길이
+# 자료구조: dfs, visited, 델타 탐색
+# 핵심 로직:
+    # 1. 가장 높은 봉우리 탐색, 관리하는 리스트 생성
+    # 2. 각 봉우리별 순회 시작
+    # 3. dfs(r, c, length, used)
+    # 4. 공사도 못하고, 길이 막혀있을 경우 length 갱신 후 return
+# 종료 조건: 마지막 봉우리까지 dfs 순회가 끝났을 떄. 최종 갱신된 length 출력
+
+def dfs(r, c, length, used):
+    global result
+    result = max(result, length)
 
     for i in range(4):
         nr = r + dr[i]
         nc = c + dc[i]
 
         if 0 <= nr < N and 0 <= nc < N and not visited[nr][nc]:
+
             if grid[nr][nc] < grid[r][c]:
                 visited[nr][nc] = True
-                path_find(nr, nc, length + 1, used)
+                dfs(nr, nc, length + 1, used)
                 visited[nr][nc] = False
 
-            elif not used:
-                if grid[nr][nc] - K < grid[r][c]:
-                    save = grid[nr][nc]
-                    grid[nr][nc] = grid[r][c] - 1
-                    visited[nr][nc] = True
-                    path_find(nr, nc, length + 1, True)
-                    grid[nr][nc] = save
-                    visited[nr][nc] = False
+            elif grid[nr][nc] - K < grid[r][c] and not used:
+                origin = grid[nr][nc]
+                grid[nr][nc] = grid[r][c] - 1
+                visited[nr][nc] = True
+                dfs(nr, nc, length + 1, used=True)
+                grid[nr][nc] = origin
+                visited[nr][nc] = False
             
 dr = [1, -1, 0, 0]
 dc = [0, 0, 1, -1]
@@ -191,26 +261,22 @@ dc = [0, 0, 1, -1]
 T = int(input())
 for tc in range(1, T + 1):
     N, K = map(int, input().split())
-
     grid = [list(map(int, input().split())) for _ in range(N)]
-    visited = [[False] * N for _ in range(N)]
 
-    # 봉우리들의 r, c 좌표를 찾아야겠지.
-    # 먼저 봉우리의 숫자가 뭔지 찾자.
     top_num = max(map(max, grid))
-    top = []
+    top_list = []
+    visited = [[False] * N for _ in range(N)]
+    result = 0
 
-    for index, row in enumerate(grid):
-        for col in range(N):
-            if row[col] == top_num:
-                top.append((index, col))
+    for r_idx, row in enumerate(grid):
+        for c_idx, col in enumerate(row):
+            if col == top_num:
+                top_list.append((r_idx, c_idx))
 
-    max_length = 0
-
-    for r, c in top:
+    for r, c in top_list:
         visited[r][c] = True
-        path_find(r, c, 1, False)
+        dfs(r, c, 1, False)
         visited[r][c] = False
 
+    print(f'#{tc} {result}')
 
-    print(f'#{tc} {max_length}')
