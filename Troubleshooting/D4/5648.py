@@ -1,6 +1,8 @@
 # 원자 소멸 시뮬레이션. 1차 시도: FAIL
 # 복습. PASS(1시간) / 자소서 동시에 쓰느라 좀 늦음
 # 09.24. 2차 복습 마지막? 
+# 드디어 미뤄놓은 복습 문제들 끝난다. 이게 마지막이다
+# 복습: PASS(35분)
 
 # 주석부터 읽고 복습할 것
 # 우와! 원자 소멸 시뮬레이션!!!!
@@ -79,42 +81,98 @@
     # 7. 생존한 원자로 다음 시뮬레이션 진행
 # 종료 조건: 모든 원자들이 좌표에서 사라지면 종료
 
+# dx = [0, 0, -1, 1]
+# dy = [1, -1, 0, 0]
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N = int(input())
+#     atoms = []
+#     total = 0
+
+#     for _ in range(N):
+#         x, y, d, K = map(int, input().split())
+#         x = x * 2
+#         y = y * 2
+#         atoms.append([x, y, d, K])
+
+#     while atoms:
+#         current_atoms = []
+#         location = {}
+#         for x, y, d, K in atoms:
+#             nx = x + dx[d]
+#             ny = y + dy[d]
+
+#             if -2000 <= nx <= 2000 and -2000 <= ny <= 2000:
+#                 x, y = nx, ny
+#                 location.setdefault((x, y), [])
+#                 location[(x, y)].append([x, y, d, K])
+#             else:
+#                 continue
+
+#         for value in location.values():
+#             if len(value) == 1:
+#                 current_atoms.append(value[0])
+#             else:
+#                 for x, y, d, K in value:
+#                     total += K
+
+#         atoms = current_atoms
+
+#     print(f'#{tc} {total}')
+
+    # SWEA 5648. 원자 소멸 시뮬레이션
+
+# 드디어 미뤄놓은 복습 문제들 끝난다. 이게 마지막이다
+# 복습: PASS(35분)
+
+# 목표: 
+    # 1. 2차원 평면에 원자들이 위치한다(x, y) 원자들을 1초마다 주어진 방향으로 이동한다.
+    # 2. 원자들이 충돌 할 때, 충돌한 모든 원자들의 에너지를 방출한다.
+    # 3. 충분한 시간이 지났다고 가정할 때, 방출된 에너지의 총합을 구하라
+# 상태: atoms = 원자들의 좌표와 방향, 에너지를 담은 리스트. current = 원자들의 현재 위치 딕셔너리
+# 자료구조: dictionary, 델타 이동
+# 핵심 로직:
+    # 1. 모든 원자들을 d 방향으로 1칸씩 이동시킨 후 딕셔너리에 좌표별로 정렬함
+    # 2. 만약 좌표의 len(value) > 1일 경우 K값을 모두 더해 total에 더함
+    # 3. len(value) == 1인 얘들만 살아남은 리스트에 넣고 위 과정을 반복함
+    # 4. 살아남은 원자 리스트가 빌 경우 종료
+# 종료 조건: 충돌로 소멸하거나 출동 가능 영역을 모든 원자들이 벗어나면 total 출력
+
 dx = [0, 0, -1, 1]
 dy = [1, -1, 0, 0]
 
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
-    atoms = []
-    total = 0
 
+    total = 0
+    atoms = []
     for _ in range(N):
         x, y, d, K = map(int, input().split())
-        x = x * 2
-        y = y * 2
-        atoms.append([x, y, d, K])
+        atoms.append((x * 2, y * 2, d, K))
 
     while atoms:
-        current_atoms = []
-        location = {}
-        for x, y, d, K in atoms:
+
+        current = {}
+        next_atoms = []
+
+        for atom in atoms:
+            x, y, d, K = atom
             nx = x + dx[d]
             ny = y + dy[d]
 
             if -2000 <= nx <= 2000 and -2000 <= ny <= 2000:
-                x, y = nx, ny
-                location.setdefault((x, y), [])
-                location[(x, y)].append([x, y, d, K])
-            else:
-                continue
+                current.setdefault((nx, ny), [])
+                current[(nx, ny)].append((nx, ny, d, K))
 
-        for value in location.values():
-            if len(value) == 1:
-                current_atoms.append(value[0])
+        for point in current:
+            if len(current[point]) > 1:
+                for bye in current[point]:
+                    total += bye[3]
             else:
-                for x, y, d, K in value:
-                    total += K
+                next_atoms.append(current[point][0])
 
-        atoms = current_atoms
+        atoms = next_atoms
 
     print(f'#{tc} {total}')
