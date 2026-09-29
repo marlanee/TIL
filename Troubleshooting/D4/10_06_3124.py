@@ -3,6 +3,9 @@
 # 1차 시도: FAIL
 # 복습: 20분(PASS) / Kruscal, Union-find! 새로 배운 개념들이다.
 # 09.29. 복습 필요
+# 2차 복습: FAIL
+# Union 함수에서 구현 실패
+# 10. 6. 복습 필요
 
 # 목표: 
 # def find(x):    # union의 대표를 반환함
@@ -62,43 +65,97 @@
     # 5. V - 1개의 간선을 선택하면 MST 완성
 # 종료조건: 선택한 간선의 개수가 V - 1개가 되면 total 출력 후 종료
 
+# def find(x):
+#     if x != parents[x]:
+#         parents[x] = find(parents[x])
+#     return parents[x]
+
+# def union(A, B):
+
+#     Ax = find(A)
+#     Bx = find(B)
+
+#     if Ax != Bx:
+#         parents[Bx] = Ax
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     V, E = map(int, input().split())
+
+#     parents = [i for i in range(V + 1)]
+#     package = []
+
+#     for _ in range(E):
+#         A, B, C = map(int, input().split())
+#         package.append((C, A, B))
+
+#     package.sort()
+
+#     total = 0
+#     count = 0
+
+#     for price, A, B in package:
+
+#         if find(A) != find(B):
+#             union(A, B)
+#             count += 1
+#             total += price
+
+#         if count == V - 1:  # 간선의 개수가 V - 1이 됐다면, 노드의 개수는 V개.
+#             break
+
+#     print(f'#{tc} {total}')
+
+# SWEA 3124. 최소 스패닝 트리
+
+# Kruscal, Union-Find 문제였다. 그 당시에는 충격적이었지.
+# 2차 복습: FAIL
+# Union 함수에서 구현 실패
+# 10. 6. 복습 필요
+
+# 목표: 정점이 V개인 그래프에서 최소 가중치의 간선만 선택하여 최소 스패닝 트리를 만들어라
+# 상태: main = 가중치가 오름차순으로 정렬된 (가중치, 정점)을 관리하는 리스트, parents = union의 대표자를 관리하는 리스트
+# 자료구조: Kruscal, Union-Find, parents
+# 핵심 로직: 
+    # 1. main을 순회하며 대표가 다른 정점들을 union에 편입시킴, 가중치를 total에 더함
+    # 2. 선택한 간선의 개수가 V - 1개가 되면 종료 후 가중치를 모두 더함
+# 종료 조건: MST의 간선의 개수가 V - 1개가 될 경우 result를 출력
+
 def find(x):
     if x != parents[x]:
         parents[x] = find(parents[x])
-    return parents[x]
+        return parents[x]
+    else:
+        return parents[x]
 
 def union(A, B):
+    top_A = find(A)
+    top_B = find(B)
 
-    Ax = find(A)
-    Bx = find(B)
-
-    if Ax != Bx:
-        parents[Bx] = Ax
+    parents[top_B] = top_A
+    return
 
 T = int(input())
 for tc in range(1, T + 1):
     V, E = map(int, input().split())
-
-    parents = [i for i in range(V + 1)]
-    package = []
-
+    main = []
     for _ in range(E):
         A, B, C = map(int, input().split())
-        package.append((C, A, B))
+        main.append((C, A, B))
 
-    package.sort()
+    main.sort()
 
+    parents = [i for i in range(V + 1)]
     total = 0
     count = 0
 
-    for price, A, B in package:
-
+    for C, A, B in main:
         if find(A) != find(B):
-            union(A, B)
+            total += C
             count += 1
-            total += price
+            union(A, B)
 
-        if count == V - 1:  # 간선의 개수가 V - 1이 됐다면, 노드의 개수는 V개.
+        if count == V - 1:
             break
 
     print(f'#{tc} {total}')
