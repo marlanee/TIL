@@ -25,7 +25,8 @@ for tc in range(1, T + 1):
     visited = [[False] * M for _ in range(N)]
     count = 0
     total = 0
-    q = deque([R, C])
+    q = deque([(R, C)])
+    grid[R][C] = True
 
     while q:
 
