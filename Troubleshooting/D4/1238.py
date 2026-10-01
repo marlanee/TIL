@@ -4,6 +4,8 @@
 # 9.23. 복습 한 번 더 하자
 # 복습: FAIL
 # 10.2. 복습 필요
+# 복습 2회차: PASS(24분)
+# 졸업
 
 # 이게 뭐야ㅐ?
 
@@ -57,39 +59,88 @@
 # 자료구조: tree, BFS, deque
 # 핵심 로직: graph로 tree 구조로 전처리, BFS로 순회, deque 이용
 # 종료 조건: 마지막 숫자들이 호출되었을 떄, max 값 출력
+# from collections import deque
+
+# def bfs(node):
+#     q = deque([node])
+#     visited[node] = True
+
+#     last_level = []
+
+#     while q:
+#         last_level = list(q)
+
+#         for _ in range(len(q)):
+#             current = q.popleft()
+
+#             for next_node in graph[current]:
+#                 if not visited[next_node]:
+#                     visited[next_node] = True
+#                     q.append(next_node)
+
+#     return max(last_level)
+
+# for tc in range(1, 11):
+#     N, lemon = map(int, input().split())
+
+#     graph = [[] for _ in range(101)]
+#     visited = [False] * 101
+
+#     origin = list(map(int, input().split()))
+
+#     for i in range(0, N, 2):
+#         start, to = origin[i], origin[i + 1]
+#         graph[start].append(to)
+
+#     result = bfs(lemon)
+
+#     print(f'#{tc} {result}')
+
+# SWEA 1238. Contact
+
+# 복습 2회차: PASS(24분)
+
+"""
+목표: 
+    1. 정점들을 가진 graph가 주어진다. 각 정점에서 간선을 통해 일정한 간격으로 한 칸씩 이동한다
+    2. 이미 등장한 정점들은 다시 방문하지 않는다.
+    3. 이 때, 마지막 순서로 등장하는 정점들 중 최대값을 구하라
+상태: graph = 정점들의 관계를 나타내는 리스트, visited = 등장 여부 확인 리스트
+자료구조: graph, visited, BFS, deque
+핵심 로직: 
+    1. graph로 입력받은 데이터 전처리
+    2. BFS로 한 너비씩 탐색
+    3. next_queue가 비었을 때, max(queue) 출력 후 종료
+종료 조건: queue가 비었을 때
+시간복잡도: O(V + E)
+"""
 from collections import deque
 
-def bfs(node):
-    q = deque([node])
-    visited[node] = True
-
-    last_level = []
-
-    while q:
-        last_level = list(q)
-
-        for _ in range(len(q)):
-            current = q.popleft()
-
-            for next_node in graph[current]:
-                if not visited[next_node]:
-                    visited[next_node] = True
-                    q.append(next_node)
-
-    return max(last_level)
-
 for tc in range(1, 11):
-    N, lemon = map(int, input().split())
-
-    graph = [[] for _ in range(101)]
-    visited = [False] * 101
-
+    N, S = map(int, input().split())
     origin = list(map(int, input().split()))
 
-    for i in range(0, N, 2):
-        start, to = origin[i], origin[i + 1]
-        graph[start].append(to)
+    graph = [[] for _ in range(101)]
+    visited = [False] * (101)
 
-    result = bfs(lemon)
+    for i in range(0, N, 2):
+        graph[origin[i]].append(origin[i + 1])
+
+    q = deque([S])
+    visited[S] = True
+
+    while q:
+        next_q = deque()
+        result = max(q)
+
+        for _ in range(len(q)):
+            node = q.popleft()
+
+            for next_node in graph[node]:   # node가 빈 리스트 일 경우 continue 하는 코드가 필요한가?
+                if not visited[next_node]:
+                    next_q.append(next_node)
+                    visited[next_node] = True
+
+        q = next_q
 
     print(f'#{tc} {result}')

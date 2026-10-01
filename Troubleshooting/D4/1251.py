@@ -4,6 +4,8 @@
 # 9. 23. 복습 필요
 # 복습: PASS(40분)
 # 10.2. 복습 필요
+# 2차 복습: PASS(40분)
+# 졸업
 
 # 목표: 각 섬을 모두가 연결되도록, 다만 최소의 거리로 연결되도록 연결하고 그 비용을 구하라.
 # 상태: visited = MST에 포함된 섬인지 여부 / dist = 현재 MST와 각 섬을 연결하는 최소 비용
@@ -74,39 +76,84 @@
     # 2. dist를 MST에 새로운 섬이 올 떄마다 갱신함. -> 연산량이 줄어드는 효과
 # 종료 조건: len(known) == N, 비용 출력
 
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N = int(input())
+
+#     X = list(map(int, input().split()))
+#     Y = list(map(int, input().split()))
+#     E = float(input())
+
+#     visited = [False] * N
+#     dist = [float('inf')] * N
+#     current = 0
+#     dist[0] = 0
+
+#     known = []
+
+#     while len(known) < N:
+
+#         min_count = float('inf')
+
+#         for i in range(N):
+#             if not visited[i]:
+#                 if dist[i] < min_count:
+#                     min_count = dist[i]
+#                     current = i
+
+#         visited[current] = True
+#         known.append(current)
+
+#         for j in range(N):
+#             if not visited[j]:
+#                 cal = abs(X[current] - X[j]) ** 2 + abs(Y[current] - Y[j]) ** 2
+#                 dist[j] = min(dist[j], cal)
+
+#     cost = sum(dist) * E
+
+#     print(f'#{tc} {round(cost)}')
+
+    # SWEA 1251. 하나로.
+# 2차 복습: PASS(40분)
+
+"""
+목표: x, y 좌표로 섬들이 주어진다. 가장 짧은 거리로 모든 섬들을 연결하라. 그 후 거리 * 비용 값을 구하라
+상태: selected = 이미 연결된 섬인지 확인하는 리스트, dist = 현재 측정한 MST와 섬 거리의 최솟값
+자료구조: Prim, selected
+핵심로직: count == N 이 될 때까지 MST에 계속 섬을 영입함
+종료조건: count == N일 때
+"""
+
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
-
     X = list(map(int, input().split()))
     Y = list(map(int, input().split()))
     E = float(input())
 
-    visited = [False] * N
+    total = 0
+    selected = [False] * N
     dist = [float('inf')] * N
-    current = 0
+
     dist[0] = 0
 
-    known = []
+    for _ in range(N):
 
-    while len(known) < N:
+        current = float('inf')
 
-        min_count = float('inf')
+        for idx, d in enumerate(dist):
+            if not selected[idx] and d < current:
+                current = d
+                count = idx
+
+        selected[count] = True
+        total += current
 
         for i in range(N):
-            if not visited[i]:
-                if dist[i] < min_count:
-                    min_count = dist[i]
-                    current = i
+            if not selected[i]:
+                long = (X[count] - X[i]) ** 2 + (Y[count] - Y[i]) ** 2
+                dist[i] = min(dist[i], long)
 
-        visited[current] = True
-        known.append(current)
+    result = round(total * E)
 
-        for j in range(N):
-            if not visited[j]:
-                cal = abs(X[current] - X[j]) ** 2 + abs(Y[current] - Y[j]) ** 2
-                dist[j] = min(dist[j], cal)
-
-    cost = sum(dist) * E
-
-    print(f'#{tc} {round(cost)}')
+    print(f'#{tc} {result}')
