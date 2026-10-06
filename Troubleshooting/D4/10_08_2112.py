@@ -1,18 +1,6 @@
-<<<<<<< HEAD
-# SWEA 1767. 프로세서 연결하기
-# 1차 시도: 19:03
-
-"""
-목표: 0 또는 1로 채워진 N x N 격자가 주어짐.
-    1. 1일 경우 상하좌우로 선을 격자의 가장자리까지 이어야 함
-    2. 선끼리는 교차될 수 없음
-    3. 벽에 붙어있는 1은 선을 연결하지 않음
-    4. 벽에 이어지지 않은 1이 생길 수도 있음
-    5. 최대한 많은 Core에 전원을 연결할 떄, 가장 짧은 선 길이의 총합을 구하라
-상태: length = 전선의 누적 길이, core = 1의 좌표를 담은 리스트
-=======
 # SWEA 2112. 보호 필름
-# 1차 시도: Reutime Error(1시간) -> PASS(가지치기 힌트 참조 후)
+# 1차 시도: Reutime Error(1시간) 
+# 10. 08. 복습 필요 / 최적화 필요
 
 """
 목표: 0 또는 1로 채워진 D x W 2차원 행렬이 주어진다.
@@ -27,7 +15,6 @@
 3. 만약 연속 조건이 만족되면 최소 투약횟수 갱신 return / row == D일 경우 return
 종료 조건:
 시간 복잡도
->>>>>>> ce566a1bfeccb9467b40f6cf9b0851e71f3744c8
 """
 
 def dfs(row, count):
@@ -54,6 +41,10 @@ def dfs(row, count):
                 check_grid += 1
                 break
 
+        if streak < K:
+            break
+
+
     if check_grid == W:
         result = min(result, count)
         return
@@ -75,10 +66,6 @@ def dfs(row, count):
 
 T = int(input())
 for tc in range(1, T + 1):
-<<<<<<< HEAD
-    N = int(input())
-    grid = [list(map(int, input().split()))]
-=======
     D, W, K = map(int, input().split())
     grid = [list(map(int, input().split())) for _ in range(D)]
 
@@ -86,4 +73,65 @@ for tc in range(1, T + 1):
     dfs(0, 0)
 
     print(f'#{tc} {result}')
->>>>>>> ce566a1bfeccb9467b40f6cf9b0851e71f3744c8
+
+
+# 아래는 GPT의 최적 코드다.
+
+# def check():
+#     if K == 1:
+#         return True
+
+#     for c in range(W):
+#         streak = 1
+#         previous = grid[0][c]
+
+#         for r in range(1, D):
+#             current = grid[r][c]
+
+#             if current == previous:
+#                 streak += 1
+#             else:
+#                 streak = 1
+
+#             previous = current
+
+#             if streak >= K:
+#                 break
+
+#         if streak < K:
+#             return False
+
+#     return True
+
+# def dfs(row, count):
+#     global result
+
+#     if count >= result:
+#         return
+
+#     if row == D:
+#         if check():
+#             result = count
+#         return
+
+#     original = grid[row]
+
+#     dfs(row + 1, count)
+
+#     grid[row] = [0] * W
+#     dfs(row + 1, count + 1)
+
+#     grid[row] = [1]* W
+#     dfs(row + 1, count + 1)
+
+#     grid[row] = original
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     D, W, K = map(int, input().split())
+#     grid = [list(map(int, input().split())) for _ in range(D)]
+
+#     result = K
+#     dfs(0, 0)
+
+#     print(f'#{tc} {result}')
