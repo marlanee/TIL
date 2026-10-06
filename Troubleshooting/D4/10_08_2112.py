@@ -1,5 +1,6 @@
 # SWEA 2112. 보호 필름
-# 1차 시도: Reutime Error(1시간) -> PASS(가지치기 힌트 참조 후)
+# 1차 시도: Reutime Error(1시간) 
+# 10. 08. 복습 필요 / 최적화 필요
 
 """
 목표: 0 또는 1로 채워진 D x W 2차원 행렬이 주어진다.
@@ -40,6 +41,10 @@ def dfs(row, count):
                 check_grid += 1
                 break
 
+        if streak < K:
+            break
+
+
     if check_grid == W:
         result = min(result, count)
         return
@@ -68,3 +73,65 @@ for tc in range(1, T + 1):
     dfs(0, 0)
 
     print(f'#{tc} {result}')
+
+
+# 아래는 GPT의 최적 코드다.
+
+# def check():
+#     if K == 1:
+#         return True
+
+#     for c in range(W):
+#         streak = 1
+#         previous = grid[0][c]
+
+#         for r in range(1, D):
+#             current = grid[r][c]
+
+#             if current == previous:
+#                 streak += 1
+#             else:
+#                 streak = 1
+
+#             previous = current
+
+#             if streak >= K:
+#                 break
+
+#         if streak < K:
+#             return False
+
+#     return True
+
+# def dfs(row, count):
+#     global result
+
+#     if count >= result:
+#         return
+
+#     if row == D:
+#         if check():
+#             result = count
+#         return
+
+#     original = grid[row]
+
+#     dfs(row + 1, count)
+
+#     grid[row] = [0] * W
+#     dfs(row + 1, count + 1)
+
+#     grid[row] = [1]* W
+#     dfs(row + 1, count + 1)
+
+#     grid[row] = original
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     D, W, K = map(int, input().split())
+#     grid = [list(map(int, input().split())) for _ in range(D)]
+
+#     result = K
+#     dfs(0, 0)
+
+#     print(f'#{tc} {result}')
