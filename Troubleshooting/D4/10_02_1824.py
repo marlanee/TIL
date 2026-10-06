@@ -2,6 +2,7 @@
 
 # 1차 시도: FAIL(60분)
 # 10. 2. 복습 필요
+# 10. 13. 복습 필요
 
 # 목표: 
 #   1. N x M 2차원 격자가 주어진다. 격자판은 다양한 명령의 요소로 이루어져 있다. 
@@ -18,77 +19,174 @@
 # 종료 조건: '@'를 만나거나 queue가 빌 때
 # 시간복잡도: O(NM)
 
+# from collections import deque
+
+# dr = [-1, 0, 1, 0]
+# dc = [0, -1, 0, 1]
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     N, M = map(int, input().split())
+#     grid = [input() for _ in range(N)]
+
+#     q = deque()
+#     visited = set()
+
+#     q.append((0, 0, 3, 0))
+
+#     result = 'NO'
+
+#     while q:
+#         r, c, d, memory = q.popleft()
+#         random = False
+
+#         case = (r, c, d, memory)
+
+#         if case in visited:
+#             continue
+
+#         visited.add(case)
+
+#         cmd = grid[r][c]
+
+#         if cmd == '@':
+#             result = 'YES'
+#             break
+
+#         nr, nc = r, c
+
+#         if cmd == '<':
+#             d = 1
+#         elif cmd == '>':
+#             d = 3
+#         elif cmd == '^':
+#             d = 0
+#         elif cmd == 'v':
+#             d = 2
+#         elif cmd == '_':
+#             if memory == 0:
+#                 d = 3
+#             else:
+#                 d = 1
+#         elif cmd == '|':
+#             if memory == 0:
+#                 d = 2
+#             else:
+#                 d = 0
+#         elif cmd.isdigit():
+#             memory = int(cmd)
+#         elif cmd == '+':
+#             memory = (memory + 1) % 16
+#         elif cmd == '-':
+#             memory = (memory - 1) % 16
+#         elif cmd == '?':
+#             random = True
+
+#         if random:
+#             for i in range(4):
+#                 nr = (r + dr[i]) % N
+#                 nc = (c + dc[i]) % M
+#                 q.append((nr, nc, i, memory))
+#         else:
+#             nr = (r + dr[d]) % N
+#             nc = (c + dc[d]) % M
+#             q.append((nr, nc, d, memory))
+
+#     print(f'#{tc} {result}')
+
+# SWEA 1824. 혁진잉의 프로그램 검증
+# 복습: N(1시간)
+
+"""
+목표: 
+    1. R x C 2차원 배열이 주어진다. 
+    2. (0, 0)에서 시작해서 @가 입력된 좌표까지 도달할 수 있는지 판정하라.
+상태: 
+    1. check_dimention = 이미 간 좌표와 메모리, 방향인지 확인
+    2. q = 현재 출발 위치
+    3. next_q = 다음 출발 위치
+자료구조: BFS
+핵심로직:
+    1. queue에 (0, 0) 출발지를 넣고 시작함. / 출발지도 check_dimention에 넣음
+    2. while q:, next_queue에 다음 좌표, 방향, 메모리를 넣음, check_dimention에 없으면 넣음
+    3. 이미 check_dimention에 있는 좌표, 방향, 메모리일 경우 continue로 스킵함
+종료 조건: queue가 비거나, @에 도달했을 경우
+시간 복잡도: 계산중
+"""
 from collections import deque
 
-dr = [-1, 0, 1, 0]
-dc = [0, -1, 0, 1]
+cmd = {
+    '<': 0,
+    '>': 1,
+    '^': 2,
+    'v': 3
+    }
+
+dr = [0, 0, -1, 1]
+dc = [-1, 1, 0, 0]
 
 T = int(input())
 for tc in range(1, T + 1):
-    N, M = map(int, input().split())
-    grid = [input() for _ in range(N)]
+    R, C = map(int, input().split())
+    grid = [input() for _ in range(R)]
 
-    q = deque()
-    visited = set()
-
-    q.append((0, 0, 3, 0))
-
+    check_dimention = {(0, 0, 1, 0)}
+    q = deque([(0, 0, 1, 0)])
     result = 'NO'
 
     while q:
+        next_q = deque()
         r, c, d, memory = q.popleft()
-        random = False
 
-        case = (r, c, d, memory)
+        word = grid[r][c]
 
-        if case in visited:
-            continue
-
-        visited.add(case)
-
-        cmd = grid[r][c]
-
-        if cmd == '@':
+        if word == '@':
             result = 'YES'
             break
 
-        nr, nc = r, c
-
-        if cmd == '<':
-            d = 1
-        elif cmd == '>':
-            d = 3
-        elif cmd == '^':
-            d = 0
-        elif cmd == 'v':
-            d = 2
-        elif cmd == '_':
+        if word in cmd:
+            d = cmd[word]
+        elif word == '_':
+            if memory == 0:
+                d = 1
+            else:
+                d = 0
+        elif word == '|':
             if memory == 0:
                 d = 3
             else:
-                d = 1
-        elif cmd == '|':
-            if memory == 0:
                 d = 2
-            else:
-                d = 0
-        elif cmd.isdigit():
-            memory = int(cmd)
-        elif cmd == '+':
+        elif word.isdigit():
+            memory = int(word)
+        elif word == '+':
             memory = (memory + 1) % 16
-        elif cmd == '-':
-            memory = (memory - 1) % 16
-        elif cmd == '?':
-            random = True
+        elif word == '-':
+            if memory == 0:
+                memory = 15
+            else:
+                memory -= 1
 
-        if random:
+        if word == '?':
             for i in range(4):
-                nr = (r + dr[i]) % N
-                nc = (c + dc[i]) % M
-                q.append((nr, nc, i, memory))
-        else:
-            nr = (r + dr[d]) % N
-            nc = (c + dc[d]) % M
-            q.append((nr, nc, d, memory))
+                d = i
+                nr = (r + dr[d]) % R
+                nc = (c + dc[d]) % C
+
+                if (nr, nc, d, memory) in check_dimention:
+                    continue
+
+                q.append((nr, nc, d, memory))
+                check_dimention.add((nr, nc, d, memory))
+
+            continue
+
+        nr = (r + dr[d]) % R
+        nc = (c + dc[d]) % C
+
+        if (nr, nc, d, memory) in check_dimention:
+            continue
+
+        q.append((nr, nc, d, memory))
+        check_dimention.add((nr, nc, d, memory))
 
     print(f'#{tc} {result}')

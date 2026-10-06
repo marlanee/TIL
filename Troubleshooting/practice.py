@@ -1,89 +1,96 @@
-<<<<<<< HEAD
-# SWEA 1767. 프로세서 연결하기
-# 1차 시도: 19:03
+# SWEA 1824. 혁진잉의 프로그램 검증
+# 복습: N(1시간)
 
 """
-목표: 0 또는 1로 채워진 N x N 격자가 주어짐.
-    1. 1일 경우 상하좌우로 선을 격자의 가장자리까지 이어야 함
-    2. 선끼리는 교차될 수 없음
-    3. 벽에 붙어있는 1은 선을 연결하지 않음
-    4. 벽에 이어지지 않은 1이 생길 수도 있음
-    5. 최대한 많은 Core에 전원을 연결할 떄, 가장 짧은 선 길이의 총합을 구하라
-상태: length = 전선의 누적 길이, core = 1의 좌표를 담은 리스트
-=======
-# SWEA 2112. 보호 필름
-# 1차 시도: Reutime Error(1시간) -> PASS(가지치기 힌트 참조 후)
-
-"""
-목표: 0 또는 1로 채워진 D x W 2차원 행렬이 주어진다.
-약품을 투입하면 열 하나를 A 또는 B로 모두 채워지도록 바꿀 수 있다.
-최소로 약품을 사용하며 모든 행이 같은 문자가 K번 반복되도록 만들어야 한다.
-이 때 약품 투약 횟수를 구하시오.
+목표: 
+    1. R x C 2차원 배열이 주어진다. 
+    2. (0, 0)에서 시작해서 @가 입력된 좌표까지 도달할 수 있는지 판정하라.
 상태: 
-자료구조:
-핵심 로직:
-1. 전체 열 각각에 K만큼 연속된 부분이 있는지 확인. 있으면 0 출력 후 continue
-2. dfs로 0열부터 D - 1 열까지, 0으로 바꾸거나, 1로 바꾸거나, 안 바꾸는 DFS 실행
-3. 만약 연속 조건이 만족되면 최소 투약횟수 갱신 return / row == D일 경우 return
-종료 조건:
-시간 복잡도
->>>>>>> ce566a1bfeccb9467b40f6cf9b0851e71f3744c8
+    1. check_dimention = 이미 간 좌표와 메모리, 방향인지 확인
+    2. q = 현재 출발 위치
+    3. next_q = 다음 출발 위치
+자료구조: BFS
+핵심로직:
+    1. queue에 (0, 0) 출발지를 넣고 시작함. / 출발지도 check_dimention에 넣음
+    2. while q:, next_queue에 다음 좌표, 방향, 메모리를 넣음, check_dimention에 없으면 넣음
+    3. 이미 check_dimention에 있는 좌표, 방향, 메모리일 경우 continue로 스킵함
+종료 조건: queue가 비거나, @에 도달했을 경우
+시간 복잡도: 계산중
 """
+from collections import deque
 
-def dfs(row, count):
-    global result
+cmd = {
+    '<': 0,
+    '>': 1,
+    '^': 2,
+    'v': 3
+    }
 
-    if count >= result:
-        return
-
-    check_grid = 0
-
-    for c in range(W):
-        streak = 1
-        previous = grid[0][c]
-        for r in range(1, D):
-            current = grid[r][c]
-            if previous == current:
-                streak += 1
-            else:
-                streak = 1
-
-            previous = current
-
-            if streak >= K:
-                check_grid += 1
-                break
-
-    if check_grid == W:
-        result = min(result, count)
-        return
-
-    if row == D:
-        return
-
-    dfs(row + 1, count)
-
-    test_1 = grid[row]
-    grid[row] = [0] * W
-    dfs(row + 1, count + 1)
-    grid[row] = test_1
-
-    test_2 = grid[row]
-    grid[row] = [1] * W
-    dfs(row + 1, count + 1)
-    grid[row] = test_2
+dr = [0, 0, -1, 1]
+dc = [-1, 1, 0, 0]
 
 T = int(input())
 for tc in range(1, T + 1):
-<<<<<<< HEAD
-    N = int(input())
-    grid = [list(map(int, input().split()))]
-=======
-    D, W, K = map(int, input().split())
-    grid = [list(map(int, input().split())) for _ in range(D)]
+    R, C = map(int, input().split())
+    grid = [input() for _ in range(R)]
 
-    result = K
-    dfs(0, 0)
+    check_dimention = {(0, 0, 1, 0)}
+    q = deque([(0, 0, 1, 0)])
+    result = 'NO'
+
+    while q:
+        next_q = deque()
+        r, c, d, memory = q.popleft()
+
+        word = grid[r][c]
+
+        if word == '@':
+            result = 'YES'
+            break
+
+        if word in cmd:
+            d = cmd[word]
+        elif word == '_':
+            if memory == 0:
+                d = 1
+            else:
+                d = 0
+        elif word == '|':
+            if memory == 0:
+                d = 3
+            else:
+                d = 2
+        elif word.isdigit():
+            memory = int(word)
+        elif word == '+':
+            memory = (memory + 1) % 16
+        elif word == '-':
+            if memory == 0:
+                memory = 15
+            else:
+                memory -= 1
+
+        if word == '?':
+            for i in range(4):
+                d = i
+                nr = (r + dr[d]) % R
+                nc = (c + dc[d]) % C
+
+                if (nr, nc, d, memory) in check_dimention:
+                    continue
+
+                q.append((nr, nc, d, memory))
+                check_dimention.add((nr, nc, d, memory))
+
+            continue
+
+        nr = (r + dr[d]) % R
+        nc = (c + dc[d]) % C
+
+        if (nr, nc, d, memory) in check_dimention:
+            continue
+
+        q.append((nr, nc, d, memory))
+        check_dimention.add((nr, nc, d, memory))
 
     print(f'#{tc} {result}')
->>>>>>> ce566a1bfeccb9467b40f6cf9b0851e71f3744c8
