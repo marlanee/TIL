@@ -1,43 +1,49 @@
-# SWEA 1865. 동철이의 일 분배
-# 복습: PASS(45분)
+# SWEA 1247. 최적 경로
+# 1차 시도: PASS(30분)
 
 """
-목표: N명의 직원이 있는 회사에 N개의 일이 주어짐. 직원별로 n의 일 성공률이 다름. 
-하나의 일은 하나의 직원에게만 배분 가능함. 모든 일을 처리할 최고 성공률을 구하라
-상태: selected = 선택된 일, max_result = 가능한 최대값, staffs = 일을 선택한 직원의 수, percent = 현재까지의 누적 성공률
-자료구조: DFS / 백트래킹
-핵심로직: 감이 잡히지 않아 코드를 작성하며 로직 구현함
-종료조건: 감이 잡히지 않아 코드를 작성하며 로직 구현함
-시간 복잡도: 계산중
+목표: 
+    1. 회사에서 출발해 N명의 고객 집을 방문한 후 집으로 돌아가려 한다.
+    2. 가장 짧은 경로의 길이를 구하시오
+상태: visited = 이미 방문한 고객 집, customer = 방문한 고객 수, length = 현재까지의 길이, 마지막으로 선택한 고객의 집 좌표
+자료구조: DFS / 백트래킹 / visited
+핵심로직:
+    # Prim처럼 보이지만, 그렇지 않음. 연결 거리가 아닌 이동 거리를 구해야 하기 때문
+    1. 가능한 좌표 방문 순서를 모두 탐색하여 최솟값을 갱신함
+    2. dfs(x, y, customer, length)
+    3. if customer == N: x, y 와 집의 거리를 더한 후 최솟값 갱신
+    4. 가지치기: length >= min_length + 200
+종료조건: customer == N / 
+시간복잡도: O(N!)
 """
 
-def dfs(staffs, percent):
-    global max_result
+def dfs(x, y, customer, length):
+    global min_length
 
-    if percent <= max_result:   # 가지치기. 성공률이 이미 더 낮다면 진행할 필요가 없다
+    if length >= min_length - 1:
         return
 
-    if staffs == N:  # 종료 조건
-        max_result = max(max_result, percent)
+    if customer == N:
+        current = abs(coordinates[2] - x) + abs(coordinates[3] - y)
+        min_length = min(min_length, current + length)
         return
 
-    for i in range(N):
-        if not selected[i]:
-            selected[i] = True
-            dfs(staffs + 1, percent * grid[staffs][i] / 100) # i 번째 일을 선택함
-            selected[i] = False
-    
+    for i in range(4, 2 * N + 4, 2):
+        if not visited[i//2]:
+            visited[i//2] = True
+            cx, cy = coordinates[i], coordinates[i + 1]
+            current = abs(x - cx) + abs(y - cy)
+            dfs(cx, cy, customer + 1, length + current)
+            visited[i//2] = False
 
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
-    grid = [list(map(int, input().split())) for _ in range(N)]
+    coordinates = list(map(int, input().split()))
 
-    max_result = 0  # 0보다 낮을 확률은 없다.
-    selected = [False] * N
+    visited = [False] * (N + 2)
+    min_length = float('inf')
 
-    dfs(0, 1)
+    dfs(coordinates[0], coordinates[1], 0, 0)
 
-    total = max_result * 100
-
-    print(f'#{tc} {total:.6f}')
+    print(f'#{tc} {min_length}')
