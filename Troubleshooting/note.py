@@ -1,3 +1,3 @@
-a = 0.981239871
-
-pa = a:.3f
+test = {1, 2, 3, 4}
+test.remove(4)
+print(test)
