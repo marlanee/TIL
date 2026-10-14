@@ -1,75 +1,69 @@
-# SWEA 2105. 디저트 카페
-# 복습: FAIL(80분)
-# 10. 21. 복습 필요
+# SWEA 10966. 물놀이를 가자
+# 10. 15. 복습: PASS(30분)
+# 졸업
 
 """
-목표: N x N 지역에 디저트 카페가 모여 있다. 그 안에는 디저트 종류가 적혀진 카페들이 있다.
-    1. 임의의 한 지점에서 마름모 모양을 그리며 카페로 돌아와야 한다.
-        1. *지정: 우하 -> 좌하 -> 좌상 -> 우상 순서 고정*
-    2. 이 때 같은 종류의 디저트를 먹어서는 안된다.
-    3. 이 조건을 만족하는 길로 갈 때, 가능한 길의 최대 길이를 구하라
-상태: dessert = 이미 먹은 디저트의 리스트. origin_r, c = 처음 출발한 위치, length = 현재 누적길이
-자료구조: dfs / 백트래킹
-핵심로직:
-    1. grid를 순회함
-        1. for r in range(0, N - 2)
-            for c in range(1, N - 1)
-    2. dessert = {grid[r][c]} 세트를 만듦. 이미 먹었는지 확인하기 위함임
-    2-2. origin_r, origin_c = r, c
-    3. dfs(r + 1, c + 1, d(0), length(1)) 호출
-    4. dfs 내부에서 가지치기: if grid[r][c] in dessert 면 return
-    5. dfs 종료조건: if r, c == origin_r, origin_c 면 최댓값 갱신
-        1. max_length = max(max_length, length)
-    6. 재귀호출 1: 방향 그대로
-        1. dfs(r + dr[d], c + dc[d], d, length + 1)
-    7. 재귀호출 2: 방향 바꿈
-        1. if d < 3:
-            dfs(r + dr[d + 1], c + dc[d], d + 1, length + 1)
-    8. 재귀 호출마다 백트래킹이 필요함. 음식을 집어넣고 빼는.
-종료조건:
-시간복잡도: 코드 작성 후 계산
+목표: N x M 지도가 주어진다. 물이면 W, 땅이면 L로 지도에 표기되어 있다.
+    1. 각각의 땅 L에서 가장 가까운 물 W로 가는 거리를 구하고
+    2. 그 거리의 총합을 구하라
+상태: 
+    1. water = 물의 좌표를 담는 리스트, 
+    2. dist = L에서 W 까지 가는 최소 거리를 담는 격자
+    3. length = 거리
+    4. next_water = 물의 다음 좌표 리스트
+자료구조: Multi_source BFS, 델타 이동
+핵심 로직: 
+    1. while water:
+    2. water을 순회하며 다음 좌표를 4방향으로 탐색
+        0. dist[nr][nc] =< length면 continue
+        1. dist[nr][nc] = length
+        2. 탐색한 좌표는 next_water 리스트에 집어넣음
+    3. length를 1 증가시킴. water = next_water로 갱신함
+종료 조건: water가 비었을 때, dist를 순회하며 이동횟수의 합 출력
 """
 
-def dfs(r, c, d, length):
-    global max_length
-
-    for nd in (d, d + 1):  # 직진 / 다음 방향으로 전환
-        if nd > 3:
-            continue
-
-        nr = r + dr[nd]
-        nc = c + dc[nd]
-
-        if not (0 <= nr < N and 0 <= nc < N):
-            continue  # 이 후보만 제외하고 다른 후보 확인
-
-        # 시작점 복귀는 디저트 중복 검사보다 먼저!
-        if (nr, nc) == (origin_r, origin_c):
-            max_length = max(max_length, length)
-            continue
-
-        food = grid[nr][nc]
-        if food in dessert:
-            continue
-
-        dessert.add(food)
-        dfs(nr, nc, nd, length + 1)
-        dessert.remove(food)
-        
-dr = [1, 1, -1, -1]
-dc = [1, -1, -1, 1]
+dr = [1, -1, 0, 0]
+dc = [0, 0, 1, -1]
 
 T = int(input())
 for tc in range(1, T + 1):
-    N = int(input())
-    grid = [list(map(int, input().split())) for _ in range(N)]
+    N, M = map(int, input().split())
+    grid = [input() for _ in range(N)]
 
-    max_length = -1
+    water = []
+    dist = [[float('inf')] * M for _ in range(N)]
+    for r in range(N):
+        for c in range(M):
+            if grid[r][c] == 'W':
+                water.append((r, c))
+                dist[r][c] = -1
 
-    for r in range(0, N - 2):
-        for c in range(1, N - 1):
-            dessert = {grid[r][c]}
-            origin_r, origin_c = r, c
-            dfs(r, c, 0, 1)
+    length = 1
 
-    print(f'#{tc} {max_length}')
+    while water:
+        next_water = []
+        for r, c in water:
+            for i in range(4):
+                nr = r + dr[i]
+                nc = c + dc[i]
+
+                if not (0 <= nr < N and 0 <= nc < M):
+                    continue
+
+                if dist[nr][nc] <= length:
+                    continue
+
+                dist[nr][nc] = length
+                next_water.append((nr, nc))
+
+        length += 1
+        water = next_water
+
+    result = 0
+    for r in range(N):
+        for c in range(M):
+            current = dist[r][c]
+            if current > 0:
+                result += current
+
+    print(f'#{tc} {result}')

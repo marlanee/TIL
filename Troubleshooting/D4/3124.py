@@ -6,6 +6,8 @@
 # 2차 복습: FAIL
 # Union 함수에서 구현 실패
 # 10. 6. 복습 필요
+# 복습: PASS(20분)
+# 10.14. 졸업
 
 # 목표: 
 # def find(x):    # union의 대표를 반환함
@@ -121,41 +123,93 @@
     # 2. 선택한 간선의 개수가 V - 1개가 되면 종료 후 가중치를 모두 더함
 # 종료 조건: MST의 간선의 개수가 V - 1개가 될 경우 result를 출력
 
-def find(x):
-    if x != parents[x]:
+# def find(x):
+#     if x != parents[x]:
+#         parents[x] = find(parents[x])
+#         return parents[x]
+#     else:
+#         return parents[x]
+
+# def union(A, B):
+#     top_A = find(A)
+#     top_B = find(B)
+
+#     parents[top_B] = top_A
+#     return
+
+# T = int(input())
+# for tc in range(1, T + 1):
+#     V, E = map(int, input().split())
+#     main = []
+#     for _ in range(E):
+#         A, B, C = map(int, input().split())
+#         main.append((C, A, B))
+
+#     main.sort()
+
+#     parents = [i for i in range(V + 1)]
+#     total = 0
+#     count = 0
+
+#     for C, A, B in main:
+#         if find(A) != find(B):
+#             total += C
+#             count += 1
+#             union(A, B)
+
+#         if count == V - 1:
+#             break
+
+#     print(f'#{tc} {total}')
+
+# SWEA 3124. 최소 스패닝 트리
+# 복습: PASS(20분)
+# 10.14. 졸업
+
+"""
+목표: 정점 V개와 간선 E개가 주어진다. 최소 스패닝 트리를 구하라
+상태: parents = 각 정점의 대표자
+자료구조: Union-Find
+핵심로직: 
+    1. 가중치가 작은 순으로 정렬
+"""
+
+def find(x):    # 대표자를 찾는 함수
+    if parents[x] != x:
         parents[x] = find(parents[x])
-        return parents[x]
-    else:
-        return parents[x]
+    return parents[x]
 
 def union(A, B):
-    top_A = find(A)
-    top_B = find(B)
+    pb = find(B)
 
-    parents[top_B] = top_A
-    return
+    parents[pb] = find(A)
 
 T = int(input())
 for tc in range(1, T + 1):
     V, E = map(int, input().split())
-    main = []
-    for _ in range(E):
+    nodes = []
+    for i in range(E):
         A, B, C = map(int, input().split())
-        main.append((C, A, B))
+        nodes.append((C, A, B))
 
-    main.sort()
+    nodes.sort()
 
     parents = [i for i in range(V + 1)]
+
     total = 0
     count = 0
 
-    for C, A, B in main:
-        if find(A) != find(B):
-            total += C
-            count += 1
-            union(A, B)
-
+    for C, A, B in nodes:
         if count == V - 1:
             break
 
+        if find(A) != find(B):  # 대표자(집합)이 다를 경우
+            union(A, B) # B 집합을 A 집합으로 흡수
+            total += C
+            count += 1
+
     print(f'#{tc} {total}')
+
+        
+
+
