@@ -1,69 +1,94 @@
-# SWEA 10966. 물놀이를 가자
-# 10. 15. 복습: PASS(30분)
-# 졸업
+# SWEA 1824. 혁진이의 프로그램 검증
+# 10. 15. 복습: 17:35
 
 """
-목표: N x M 지도가 주어진다. 물이면 W, 땅이면 L로 지도에 표기되어 있다.
-    1. 각각의 땅 L에서 가장 가까운 물 W로 가는 거리를 구하고
-    2. 그 거리의 총합을 구하라
+목표: R x C 격자가 주어진다. 
+    1. 최상단 왼쪽 문자에서 시작해서 '@' 문자까지 도달할 수 있는지 판별하라
 상태: 
-    1. water = 물의 좌표를 담는 리스트, 
-    2. dist = L에서 W 까지 가는 최소 거리를 담는 격자
-    3. length = 거리
-    4. next_water = 물의 다음 좌표 리스트
-자료구조: Multi_source BFS, 델타 이동
-핵심 로직: 
-    1. while water:
-    2. water을 순회하며 다음 좌표를 4방향으로 탐색
-        0. dist[nr][nc] =< length면 continue
-        1. dist[nr][nc] = length
-        2. 탐색한 좌표는 next_water 리스트에 집어넣음
-    3. length를 1 증가시킴. water = next_water로 갱신함
-종료 조건: water가 비었을 때, dist를 순회하며 이동횟수의 합 출력
+    1. visited = 이미 간 세계선인지 확인하는 세트. 
+    2. q = 출발 세계선을 담은 deque
+자료구조: BFS, visited, 델타 이동
+핵심 로직:
+    1. q에 출발 상태를 담는다.
+    2. r, c, d, memory = q.popleft로 꺼낸다.
+    3. 명령어에 따라 각 값을 변경하고 q와 visited에 넣는다.
+    4. 만약 이미 다녀온 세계선이면 continue 한다.
+종료 조건: @를 만나면 YES. q가 비면 NO.
+시간 복잡도:
 """
+from collections import deque
 
-dr = [1, -1, 0, 0]
-dc = [0, 0, 1, -1]
+dr = [-1, 1, 0, 0]
+dc = [0, 0, -1, 1]
 
 T = int(input())
 for tc in range(1, T + 1):
-    N, M = map(int, input().split())
-    grid = [input() for _ in range(N)]
+    R, C = map(int, input().split())
+    grid = [input() for _ in range(R)]
 
-    water = []
-    dist = [[float('inf')] * M for _ in range(N)]
-    for r in range(N):
-        for c in range(M):
-            if grid[r][c] == 'W':
-                water.append((r, c))
-                dist[r][c] = -1
 
-    length = 1
+    visited = {(0, 0, 3, 0)}
+    q = deque([(0, 0, 3, 0)])   # 초기 출발지점.
+    result = 'NO'
 
-    while water:
-        next_water = []
-        for r, c in water:
+    while q:
+        r, c, d, memory = q.popleft()
+        current = grid[r][c]
+
+        if current == '?':
             for i in range(4):
-                nr = r + dr[i]
-                nc = c + dc[i]
+                nr = (r + dr[i]) % R
+                nc = (c + dc[i]) % C
 
-                if not (0 <= nr < N and 0 <= nc < M):
-                    continue
+                next = (nr, nc, i, memory) 
 
-                if dist[nr][nc] <= length:
-                    continue
+                if next not in visited:
+                    visited.add(next)
+                    q.append(next)
 
-                dist[nr][nc] = length
-                next_water.append((nr, nc))
+            continue
 
-        length += 1
-        water = next_water
+        if current == '<':
+            d = 2
+        elif current == '>':
+            d = 3
+        elif current == '^':
+            d = 0
+        elif current == 'v':
+            d = 1
+        elif current == '_':
+            if memory == 0:
+                d = 3
+            else:
+                d = 2
+        elif current == '|':
+            if memory == 0:
+                d = 1
+            else:
+                d = 0
+        elif current == '@':
+            result = 'YES'
+            break
+        elif current.isalpha():
+            memory = int(current)
+        elif current == '+':
+            if memory == 15:
+                memory = 0
+            else:
+                memory += 1
+        elif current == '-':
+            if memory == 0:
+                memory == 15
+            else:
+                memory -= 1
 
-    result = 0
-    for r in range(N):
-        for c in range(M):
-            current = dist[r][c]
-            if current > 0:
-                result += current
+        nr = (r + dr[d]) % R
+        nc = (c + dc[d]) % C
+
+        next = (nr, nc, d, memory)
+
+        if next not in visited:
+            visited.add(next)
+            q.append(next)
 
     print(f'#{tc} {result}')
