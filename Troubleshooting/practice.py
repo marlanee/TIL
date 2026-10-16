@@ -1,5 +1,6 @@
 # SWEA 1824. 혁진이의 프로그램 검증
-# 10. 15. 복습: 17:35
+# 10. 15. 복습: PASS(47분) / 25분 + 디버깅 22분
+# 졸업
 
 """
 목표: R x C 격자가 주어진다. 
@@ -14,7 +15,7 @@
     3. 명령어에 따라 각 값을 변경하고 q와 visited에 넣는다.
     4. 만약 이미 다녀온 세계선이면 continue 한다.
 종료 조건: @를 만나면 YES. q가 비면 NO.
-시간 복잡도:
+시간 복잡도: O(RC)
 """
 from collections import deque
 
@@ -69,7 +70,7 @@ for tc in range(1, T + 1):
         elif current == '@':
             result = 'YES'
             break
-        elif current.isalpha():
+        elif current.isdigit():
             memory = int(current)
         elif current == '+':
             if memory == 15:
@@ -78,7 +79,7 @@ for tc in range(1, T + 1):
                 memory += 1
         elif current == '-':
             if memory == 0:
-                memory == 15
+                memory = 15
             else:
                 memory -= 1
 
