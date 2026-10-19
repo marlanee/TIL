@@ -1,88 +1,133 @@
-# SWEA 5644. 무선 충전
-# 10. 16. 1차 시도: 15:24
+# SWEA 2383. 점심 식사시간
+# 10.19. 복습 1차: FAIL(1시간) / DFS 백트래킹 구현 부족
+# 10. 26. 복습 필요
 
 """
-목표: 10 x 10 지도에 A개의 BC가 주어진다.
-    1. 두 사람(1, 1)(10, 10)이 주어진 동선으로 이동한다.
-    2. 이동하며 BC의 범위 안에 들어가면 P만큼 충전된다.
-        1. 두 사람이 동시에 같은 BC를 선택하면 p // 2만큼 각각 충전된다
-        2. 범위는 맨해튼 거리로 주어진다.
-    3. M 시간이 지난 후 두 사람의 총 충전량을 구하라
+목표: N x N 크기의 방에 사람들이 앉아 있다.
+    1. 사람은 1, 계단은 2 이상의 숫자로 주어진다.
+    2. 사람들은 맨해튼 거리로 계단으로 이동한다.
+    3. 계단은 최대 3명까지 이용 가능하다. / 초과 인원은 입구에서 대기한다
+    4. 입구에 도착하면 1분 후 내려갈 수 있다.
+    5. 모든 사람들이 완전히 내려갈 때까지 걸리는 최소 시간을 구하라
 상태: 
-    1. BC의 P만 담아놓는 power 리스트 생성
-    2. BC들의 범위를 담아놓는 BC_range 생성
-        1. 
-자료구조: 델타 탐색
-핵심로직:
-    0. A_total, B_total에 가장 큰 P를 담고 시작
-    1. M 시간만큼 반복 for m in range(M):
-    2. A, B 둘 다 다음 칸으로 이동
-    3. 다음 칸에서 가장 강력한 P를 total에 더함
-종료조건: 반복문이 종료되면 A_total + B_total을 출력
-시간복잡도:
+    1. min_time = 현재까지 찾은 최소 시간
+    2. arrival = 사람들의 도착시간 분류 세트
+자료구조:
+핵심로직: 
+    0. 사람들을 (A계단 도착시간, B계단 도착시간) 세트로 분류한다.
+    1. 사람들을 계단에 보내는 경우를 완전 탐색한다.
+        1. 0명부터 N명까지 A 계단에, 나머지는 다른 B 계단에 보낸다
+        2. dfs(idx) / 넣고 + dfs(idx + 1) + 백트래킹 
+        3. if idx == N / 반복문으로 B 계단에 A계단에 없는 사람들 넣는다
+    2. 보내는 경우가 선택되면 시간을 계산해서 갱신한다.
+        1. A 계단 소요시간과 B 소요시간중 최대 시간
+        2. 시간을 1시간씩 흐르게 만듦
+        3. 도착하면 입구에 위치시킴 / 대기시간 1시간
+        4. 대기시간이 지나고 계단에 사람이 3명 미만이면 투입
+        5. 이동을 완료하면 계단에서 제거 / 다음 사람 투입
+종료조건: 
+    1. 가지치기: A만 계산해도 이미 최솟값을 넘었을 때
+    2. dfs로 완전 탐색이 끝났을 때
+    3. 출력값: 최소 시간
 """
-def cal(ar, ac, br, bc):
-    global total_A, total_B
 
-    choice_A = []
-    choice_B = []
+def dfs(idx):
+    global min_time
 
-    for a in range(A):
-        if (ar, ac) in BC_range[a]:
-            choice_A.append((powers[a], a))
-        if (br, bc) in BC_range[a]:
-            choice_B.append((powers[a], a))
+    if idx == len(arrival):
+        A_time = cal_time(stair_A, 0)
 
-    choice_A.sort(reverse=True)
-    choice_B.sort(reverse=True)
+        if A_time >= min_time:
+            return
+        
+        B_time = cal_time(stair_B, 1)
 
-    if choice_A and choice_B:
-        if choice_A[0] == choice_B[0]:
-            if choice_A[1][1] >= choice_B[0][1]:
-                total_A += choice_A[0][1]
-                total_B += choice_B[0][0]
-        else:
-            total_A += choice_A[0][0]
-            total_B += choice_B[0][0]
-    elif choice_A:
-        total_A += choice_A[0][0]
-    elif choice_B:
-        total_B += choice_B[0][0]
+        min_time = min(min_time, max(A_time, B_time))
+        return
+
+    stair_A.append(arrival[idx])
+    dfs(idx + 1)    # idx 사람을 A 계단에 선택
+    stair_A.pop()
+
+    stair_B.append(arrival[idx])
+    dfs(idx + 1)
+    stair_B.pop()
 
 
-dr = [0, -1, 0, 1, 0]
-dc = [0, 0, 1, 0, -1]
+def cal_time(stair, kind):
+
+    people = list(stair)
+    entrance = []
+    going_down = []
+    down_time = stairs_long[kind]
+    t = 0
+
+    while people or entrance or going_down:  # 사람이 있을 때까지 반복
+        next_people = []
+        next_going_down = []
+        next_entrance = []
+
+        for gd in going_down:
+            ngd = gd - 1
+            if ngd == 0:
+                continue
+            next_going_down.append(ngd)
+
+        going_down = next_going_down
+
+        for e in entrance:  # 입구에서 계단으로
+            if len(going_down) < 3:
+                going_down.append(e)
+                continue
+            next_entrance.append(e)
+
+        entrance = next_entrance
+
+        for p in people:    # 1칸식 계단으로 전진. 온 사람은 입구로.
+            next_p = p[kind] - 1
+            if next_p == 0:
+                entrance.append(down_time)
+                continue
+            if kind == 0:
+                next_people.append((p[kind] - 1, 10))
+            else:
+                next_people.append((10, p[kind] - 1))
+
+        people = next_people
+
+        t += 1
+
+    return t
+
 
 T = int(input())
 for tc in range(1, T + 1):
-    M, A = map(int, input().split())
-    person_A = list(map(int, input().split()))
-    person_B = list(map(int, input().split()))
-    BC = [list(map(int, input().split())) for _ in range(A)]
+    N = int(input())
+    grid = [list(map(int, input().split())) for _ in range(N)]
 
-    powers = [BC[i][3] for i in range(A)]  # P 만 담아놓는 리스트
+    min_time = float('inf')
+    arrival = []
+    stairs = []
+    stairs_long = []
 
-    BC_range = [set() for _ in range(A)]
+    for r in range(N):  # 계단 좌표 찾기
+        for c in range(N):
+            if grid[r][c] >= 2:
+                stairs.append((r, c))
+                stairs_long.append(grid[r][c])
 
-    for bc in range(A): # BC들의 범위를 담아놓는 코드
-        row, col, bc_range, _ = BC[bc]
+    for r in range(N):  # A, B 계단과 각 사람들의 거리 탐색
+        for c in range(N):
+            if grid[r][c] == 1:
+                ar, ac = stairs[0]
+                time_A = abs(r - ar) + abs(c - ac)
+                br, bc = stairs[1]
+                time_B = abs(r - br) + abs(c - bc)
+                arrival.append((time_A, time_B))
 
-        for r in range(10):
-            for c in range(10):
-                if abs(row - r) + abs(col - c) <= bc_range:
-                    BC_range[bc].add((r, c))
-    
-    total_A = 0
-    total_B = 0
+    stair_A = []
+    stair_B = []
 
-    ar, ac = 1, 1
-    br, bc = 10, 10
-    for m in range(M):
-        ar = ar + dr[person_A[m]]
-        ac = ac + dc[person_A[m]]
-        br = br + dr[person_B[m]]
-        bc = bc + dc[person_B[m]]
+    dfs(0)
 
-        cal(ar, ac, br, bc)
-
-    print(f'#{tc} {total_B + total_A}')
+    print(f'#{tc} {min_time}')
