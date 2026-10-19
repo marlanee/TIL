@@ -1,95 +1,88 @@
-# SWEA 1824. 혁진이의 프로그램 검증
-# 10. 15. 복습: PASS(47분) / 25분 + 디버깅 22분
-# 졸업
+# SWEA 5644. 무선 충전
+# 10. 16. 1차 시도: 15:24
 
 """
-목표: R x C 격자가 주어진다. 
-    1. 최상단 왼쪽 문자에서 시작해서 '@' 문자까지 도달할 수 있는지 판별하라
+목표: 10 x 10 지도에 A개의 BC가 주어진다.
+    1. 두 사람(1, 1)(10, 10)이 주어진 동선으로 이동한다.
+    2. 이동하며 BC의 범위 안에 들어가면 P만큼 충전된다.
+        1. 두 사람이 동시에 같은 BC를 선택하면 p // 2만큼 각각 충전된다
+        2. 범위는 맨해튼 거리로 주어진다.
+    3. M 시간이 지난 후 두 사람의 총 충전량을 구하라
 상태: 
-    1. visited = 이미 간 세계선인지 확인하는 세트. 
-    2. q = 출발 세계선을 담은 deque
-자료구조: BFS, visited, 델타 이동
-핵심 로직:
-    1. q에 출발 상태를 담는다.
-    2. r, c, d, memory = q.popleft로 꺼낸다.
-    3. 명령어에 따라 각 값을 변경하고 q와 visited에 넣는다.
-    4. 만약 이미 다녀온 세계선이면 continue 한다.
-종료 조건: @를 만나면 YES. q가 비면 NO.
-시간 복잡도: O(RC)
+    1. BC의 P만 담아놓는 power 리스트 생성
+    2. BC들의 범위를 담아놓는 BC_range 생성
+        1. 
+자료구조: 델타 탐색
+핵심로직:
+    0. A_total, B_total에 가장 큰 P를 담고 시작
+    1. M 시간만큼 반복 for m in range(M):
+    2. A, B 둘 다 다음 칸으로 이동
+    3. 다음 칸에서 가장 강력한 P를 total에 더함
+종료조건: 반복문이 종료되면 A_total + B_total을 출력
+시간복잡도:
 """
-from collections import deque
+def cal(ar, ac, br, bc):
+    global total_A, total_B
 
-dr = [-1, 1, 0, 0]
-dc = [0, 0, -1, 1]
+    choice_A = []
+    choice_B = []
+
+    for a in range(A):
+        if (ar, ac) in BC_range[a]:
+            choice_A.append((powers[a], a))
+        if (br, bc) in BC_range[a]:
+            choice_B.append((powers[a], a))
+
+    choice_A.sort(reverse=True)
+    choice_B.sort(reverse=True)
+
+    if choice_A and choice_B:
+        if choice_A[0] == choice_B[0]:
+            if choice_A[1][1] >= choice_B[0][1]:
+                total_A += choice_A[0][1]
+                total_B += choice_B[0][0]
+        else:
+            total_A += choice_A[0][0]
+            total_B += choice_B[0][0]
+    elif choice_A:
+        total_A += choice_A[0][0]
+    elif choice_B:
+        total_B += choice_B[0][0]
+
+
+dr = [0, -1, 0, 1, 0]
+dc = [0, 0, 1, 0, -1]
 
 T = int(input())
 for tc in range(1, T + 1):
-    R, C = map(int, input().split())
-    grid = [input() for _ in range(R)]
+    M, A = map(int, input().split())
+    person_A = list(map(int, input().split()))
+    person_B = list(map(int, input().split()))
+    BC = [list(map(int, input().split())) for _ in range(A)]
 
+    powers = [BC[i][3] for i in range(A)]  # P 만 담아놓는 리스트
 
-    visited = {(0, 0, 3, 0)}
-    q = deque([(0, 0, 3, 0)])   # 초기 출발지점.
-    result = 'NO'
+    BC_range = [set() for _ in range(A)]
 
-    while q:
-        r, c, d, memory = q.popleft()
-        current = grid[r][c]
+    for bc in range(A): # BC들의 범위를 담아놓는 코드
+        row, col, bc_range, _ = BC[bc]
 
-        if current == '?':
-            for i in range(4):
-                nr = (r + dr[i]) % R
-                nc = (c + dc[i]) % C
+        for r in range(10):
+            for c in range(10):
+                if abs(row - r) + abs(col - c) <= bc_range:
+                    BC_range[bc].add((r, c))
+    
+    total_A = 0
+    total_B = 0
 
-                next = (nr, nc, i, memory) 
+    ar, ac = 1, 1
+    br, bc = 10, 10
+    for m in range(M):
+        ar = ar + dr[person_A[m]]
+        ac = ac + dc[person_A[m]]
+        br = br + dr[person_B[m]]
+        bc = bc + dc[person_B[m]]
 
-                if next not in visited:
-                    visited.add(next)
-                    q.append(next)
+        cal(ar, ac, br, bc)
 
-            continue
-
-        if current == '<':
-            d = 2
-        elif current == '>':
-            d = 3
-        elif current == '^':
-            d = 0
-        elif current == 'v':
-            d = 1
-        elif current == '_':
-            if memory == 0:
-                d = 3
-            else:
-                d = 2
-        elif current == '|':
-            if memory == 0:
-                d = 1
-            else:
-                d = 0
-        elif current == '@':
-            result = 'YES'
-            break
-        elif current.isdigit():
-            memory = int(current)
-        elif current == '+':
-            if memory == 15:
-                memory = 0
-            else:
-                memory += 1
-        elif current == '-':
-            if memory == 0:
-                memory = 15
-            else:
-                memory -= 1
-
-        nr = (r + dr[d]) % R
-        nc = (c + dc[d]) % C
-
-        next = (nr, nc, d, memory)
-
-        if next not in visited:
-            visited.add(next)
-            q.append(next)
-
-    print(f'#{tc} {result}')
+    print(f'#{tc} {total_B + total_A}')
