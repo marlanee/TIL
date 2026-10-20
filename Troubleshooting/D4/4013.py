@@ -1,7 +1,89 @@
 # SWEA 4013. 특이한 자석
 # 1차 시도: FAIL(1시간) -> 힌트 딱 하나 보고 바로 PASS
 # 10. 20. 복습 필요
+# SWEA 4013. 특이한 자석
+# 10. 20. 1차 복습: PASS(50분)
+# 졸업
 
+"""
+목표: 8개의 날을 가진 4개의 자석이 주어짐
+    1. 4개 중 임의의 자석을 (시계 or 반시계) 방향으로 회전시킴
+    2. 회전한 자석과 인접한 자석이 반대 자성일 경우 인접한 자석은 반대 방향으로 회전함
+    3. 모든 회전이 끝난 후 화살표 위치에 있는 자성에 따라 점수를 계산하고 총합을 구하라
+상태: 
+    1. total = 점수의 총합
+자료구조: 따로 필요하지 않음
+핵심 로직:
+    1. cmd를 순회, 해당 자석을 회전시킴
+    2. 인접한 자석들의 날이 해당 자석의 날과 반대인지 확인
+    3. 반대라면, 반대 방향으로 회전시킴
+    4. 연쇄 회전한 자석과 인접한 자석의 날을 체크 후 회전 또는 미회전
+종료 조건: 
+    1. cmd 순회가 종료되었을 때.
+    2. for row in grid: / row[0] 을 확인해서 점수 계산 후 총합 출력
+시간 복잡도: O(K)
+"""
+
+def spin_magnet(target, spin):
+
+    if spin == 1:   # 시계방향의 경우 / 회전
+        q = grid[target][-1]
+        grid[target][1:8] = grid[target][:7]
+        grid[target][0] = q
+        return
+    else:   # 반시계 방향의 경우
+        q = grid[target][0]
+        grid[target][:7] = grid[target][1:8]
+        grid[target][-1] = q
+        return
+
+T = int(input())
+for tc in range(1, T + 1):
+    K = int(input())
+    grid = [list(map(int, input().split())) for _ in range(4)]
+    cmd = []
+
+    for _ in range(K):  # 코드 작성을 쉽게 하기 위해 번호를 1씩 빼서 저장함
+        magnet, spin = map(int, input().split())
+        cmd.append((magnet - 1, spin))
+
+    for magnet, d in cmd:
+        spin_magnet(magnet, d)  # 회전
+
+        # 이제 양 옆에 자석이 있는지 확인한 후, 조건에 따라 회전시켜야 한다.
+        # 우선 왼쪽 확인
+        left_idx = magnet
+        left_d = d
+        while left_idx - 1 >= 0:
+            if grid[left_idx][6 + left_d] != grid[left_idx - 1][2]:
+                spin_magnet(left_idx - 1, -left_d)
+            else:
+                break
+
+            left_idx -= 1
+            left_d = -left_d
+
+        right_idx = magnet
+        right_d = d
+        while right_idx + 1 < 4:
+            if grid[right_idx][2 + right_d] != grid[right_idx + 1][6]:
+                spin_magnet(right_idx + 1, -right_d)
+            else:
+                break
+
+            right_idx += 1
+            right_d = -right_d
+
+    count = 1
+    total = 0
+
+    for row in grid:
+        if row[0] == 1:
+            total += count
+        count *= 2
+
+    print(f'#{tc} {total}')
+    
 """
 목표: 
     1. 8개의 날을 가진 4개의 자석이 주어진다
