@@ -1,71 +1,128 @@
-# SWEA 2105. 디저트 카페
-# 2차 복습: PASS(30분)
+# SWEA 2477. 차량 정비소
+# 26. 10. 22
+# 1차 시도: FAIL(2시간)
 
 """
-목표: 디저트의 숫자(카페)가 채워진 N x N 지역이 주어진다.
-    1. 최대한 많은 카페에 방문하려고 한다
-    2. 반드시 사각형 모양을 그리며 이동해야 한다
-    3. 같은 메뉴는 먹을 수 없다
-    4. 최대 카페 방문수를 구하라
+목표: 차량 정비소에 접수 창구와 정비 창구가 있다.
+    1. A 접수 창구와 B 정비 창구를 이용한 손님 고객번호의 합을 구하라
+    2. 손님들은 각기 다른 시간에 도착하며 아래의 규칙에 따라 창구를 이용한다.
+    3. 접수 창구: 
+        0. 고객이 도착하면 접수 창구번호가 작은 곳부터 채운다.
+        1. 접수 창구가 가득 차 있으면 초과한 고객들은 기다린다.
+        2. 여러 고객이 기다릴 경우 고객번호가 낮은 순서대로 우선 접수
+    4. 정비 창구:
+        1. 고객이 도착하면 정비 창구번호가 작은 곳부터 채운다.
+        2. 여러 고객이 기다릴 경우, 먼저 기다린 고객을 우선한다
+        3. 두 명이 동시에 접수 창구로 왔다면, 접수 창구번호가 작은 고객을 우선
 상태: 
-    1. current = 현재 좌표에서 출발해서 먹은 디저트 메뉴
-    2. max_count = 현재까지 찾은 최대 카페 방문수
-자료구조: 델타 이동, dfs/백트래킹
+    1. waiting_reception = 접수 창구 대기명단
+    2. using_reception = 접수 창구 이용자 명단
+    3. waiting_repair = 정비 창구 대기명단
+    4. using_repair = 정비 창구 이용자 명단
+자료구조: 단순 반복문
 핵심로직:
-    1. grid를 순회  # 사각형을 못 그리는 출발점은 필요 없다. index를 제한한다.
-        for r in range(N - 2)
-            for c in range(1, N - 1)
-    2. dfs 사용
-        1. dfs(r, c, d, count)
-        2. 가지치기 A: 같은 메뉴가 current에 들어있을 때 return
-        3. 가지치기 B: 벽을 만나면 return
-        3. 종료 조건: nr, nc == row, col일 때 max_count 갱신
-        4. 재귀 호출 A: dfs(nr, nc, d, count + 1) # 방향을 바꾸지 않을 때
-        5. 만약 d가 3보다 작을 때
-            5 - 1. 재귀 호출 B: dfs(nr, nc, d + 1, count + 1) # 방향을 바꿀 때
-종료 조건: grid 순회가 끝났을 때 max_count 출력
-시간 복잡도: O(N^6)
+    1. while arrival and using_reception and using_repair and waiting_reception:
+    2. using_repair에 있는 고객들의 using_time 을 1 줄인다.
+        1. using_time == 0일 경우 그 창구를 비운다.
+    3. using_reception에 있는 고객들의 using_time을 1 줄인다
+        1. using_time == 0일 경우 그 창구를 비우고 waiting_repair로 이동한다.
+    4. waiting_repair에 있는 손님들을 using_repair에 넣는다
+        0. 창구가 비워져 있을 경우에만 넣는다,
+        1. 이 때, user_log[손님 번호]에 repair 번호를 append
+    5. arrival을 1 감소시킨다. 
+        1. 0이 된 손님은 waiting_reception에 넣는다
+        2. arrival에서 제거한다. / continue로 해결
+    6. waiting_reception에 있는 고객들을 using_reception에 넣는다
+        1. 창구가 비워져 있을 경우에만 넣는다.
+        2. 이 때 user_log[손님 번호]에 reception 번호를append
+종료 조건: 도착할 손님, 이용중인 고객, 대기중인 고객이 모두 없을 때.
 """
-
-dr = [1, 1, -1, -1]
-dc = [1, -1, -1, 1]
-
-def dfs(r, c, d, count):
-    global max_count
-
-    # 일단 이동
-    nr = r + dr[d]
-    nc = c + dc[d]  
-
-    if not (0 <= nr < N and 0 <= nc < N):   # 벽 만나면 종료
-        return
-
-    if (nr, nc) == (row, col):  # 종료 조건
-        max_count = max(max_count, count)
-        return
-
-    if grid[nr][nc] in current: # 이미 먹은 디저트면 종료
-        return
-
-    current.add(grid[nr][nc])
-    # 방향을 바꾸지 않는 경우
-    dfs(nr, nc, d, count + 1)
-    # 방향을 바꾸는 경우
-    if d < 3:
-        dfs(nr, nc, d + 1, count + 1)
-    current.remove(grid[nr][nc])
-
 
 T = int(input())
 for tc in range(1, T + 1):
-    N = int(input())
-    grid = [list(map(int, input().split())) for _ in range(N)]
+    N, M, K, A, B = map(int, input().split())
+    reception = list(map(int, input().split()))
+    repair = list(map(int, input().split()))
+    arrival = list(map(int, input().split()))
 
-    max_count = -1
+    waiting_reception = []
+    using_reception = [(_, 0) for _ in range(N)]
+    waiting_repair = []
+    using_repair = [(_, 0) for _ in range(M)]
+    user_log = [[] for _ in range(K)]
+    completed = 0
+    time = 0
 
-    for row in range(N - 2):
-        for col in range(1, N - 1):
-            current = {grid[row][col]}  # 시간복잡도 문제로 set 사용
-            dfs(row, col, 0, 1)
+    while completed < K:
+        next_waiting_reception = []
+        next_waiting_repair = []
+        next_arrival = []
 
-    print(f'#{tc} {max_count}')
+        for idx, (person, using_time) in enumerate(using_repair):
+            if using_time > 0:
+                using_time -= 1
+
+                if using_time == 0:
+                    completed += 1
+                    using_repair[idx] = (-1, 0)
+                else:
+                    using_repair[idx] = (person, using_time)
+
+        for idx, (person, using_time) in enumerate(using_reception): 
+            using_time -= 1
+            
+            if using_time == 0:
+                next_waiting_repair.append((person, using_time))
+            using_reception[idx] = (person, using_time)
+
+        next_waiting_repair.sort()
+
+        for person, using_time in next_waiting_repair:
+            waiting_repair.append((person, using_time))
+
+        for w_person, w_using_time in waiting_repair:   # 먼저 기다리던 사람들을 정비 창구 이용하도록
+            assigned = False
+            for idx, (person, using_time) in enumerate(using_repair):
+                if using_time <= 0:
+                    using_repair[idx] = (w_person, repair[idx])
+                    user_log[w_person].append(idx)
+                    assigned = True
+                    break
+            if not assigned:
+                next_waiting_repair.append((w_person, w_using_time))
+
+        for person, arrival_time in enumerate(arrival):
+            if arrival_time == time:
+                waiting_reception.append((person, 0))
+
+        for w_person, w_using_time in waiting_reception:
+            assigned = False
+            for idx, (person, using_time) in enumerate(using_reception):
+                if using_time <= 0:
+                    using_reception[idx] = (w_person, reception[idx])
+                    user_log[w_person].append(idx)
+                    assigned = True
+                    break
+            if not assigned:
+                next_waiting_reception.append((w_person, w_using_time))
+
+        waiting_reception = next_waiting_reception
+        waiting_repair = next_waiting_repair
+        arrival = next_arrival
+        time += 1
+
+    total = 0
+    
+    for person, (a, b) in enumerate(user_log):
+        if (a, b) == (A - 1, B - 1):
+            total += 1 + person
+
+    print(f'#{tc} {total}')
+
+
+
+
+                
+
+        
+
