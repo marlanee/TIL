@@ -1,76 +1,54 @@
-from collections import deque
+# 26. 10. 26
+# SWEA 2117. 홈 방범 서비스.
+# 1차 복습: PASS(30분)
+# 졸업
+
+"""
+목표: N * N 크기의 도시가 주어진다.
+    1. 이 곳에 마름모 모양으로 홈방범 서비스를 제공하려고 한다.
+    2. 비용은 마름모 모양의 영역과 일치한다
+    3. 한 집에 방법 서비스를 제공하면 M 가격을 받는다
+    4. 이익이 0 이상이 되는 선에서 가장 많은 집들에 서비스를 제공하라.
+상태: 
+    1. max_house = 현재까지 찾은 최대 방법 서비스 집의 개수
+자료구조: 단순 반복문
+핵심로직:
+    1. K == N - 1까지 반복문을 돌린다.
+    2. grid를 순회하며 K만큼의 마름모 범위로 가장 많은 집들에 서비스를 제공하는지 확인한다
+        1. 단, 이익이 0 이상이어야 한다.
+종료조건: 가장 큰 K 반복문이 종료되었을 때, 최대값 출력
+시간복잡도:
+"""
 
 T = int(input())
 for tc in range(1, T + 1):
-    N, M, K, A, B = map(int, input().split())
-    reception = list(map(int, input().split()))
-    repair = list(map(int, input().split()))
-    arrival = list(map(int, input().split()))
+    N, M = map(int, input().split())
+    grid = [list(map(int, input().split())) for _ in range(N)]
 
-    # 1. 대기열
-    waiting_reception = deque()
-    waiting_repair = deque()
+    max_house = 0
 
-    # 2. 창구 상태
-    using_reception = [None] * N
-    using_repair = [None] * M
+    for K in range(1, N + 2):
+        cost = K * K + (K - 1) * (K - 1)
+        for row in range(N):
+            for col in range(N):
+                current_house = 0
 
-    # 고객별 이용한 접수 창구
-    reception_log = [-1] * K
+                # 마름모 범위 탐색
+                for r in range(row - K + 1,row + K):
+                    for c in range(col - K + 1, col + K):
+                        # 범위가 나갔는지 제한.
+                        if not (0 <= r < N and 0 <= c < N):
+                            continue
 
-    time = 0
-    next_customer = 0
-    completed = 0
-    total = 0
+                        if (abs(r - row) + abs(c - col)) > K - 1:
+                            continue
 
-    while completed < K:
+                        if grid[r][c] == 1:
+                            current_house += 1
 
-        # 1. 정비 완료 고객 퇴장.
-        for idx in range(M):
-            if using_repair[idx] is None:
-                continue
+                # 탐색 종료 후 최댓값 갱신
+                if max_house < current_house:
+                    if cost <= current_house * M:
+                        max_house = current_house
 
-            person, end_time = using_repair[idx]
-
-            if end_time == time:
-                using_repair[idx] = None
-                completed += 1
-
-        # 2. 접수 완료 고객 -> 정비 대기열
-        for idx in range(N):
-            if using_reception[idx] is None:
-                continue
-
-            person, end_time = using_reception[idx]
-
-            if end_time == time:
-                waiting_repair.append(person)
-                using_reception[idx] = None
-
-        # 3. 현재 시각에 도착한 고객 -> 접수 대기열
-        while next_customer < K and arrival[next_customer] == time:
-            waiting_reception.append(next_customer)
-            next_customer += 1
-
-        # 4. 접수 대기 고객 -> 빈 접수 창구
-        for idx in range(N):
-            if using_reception[idx] is None and waiting_reception:
-                person = waiting_reception.popleft()
-
-                reception_log[person] = idx
-                using_reception[idx] = (person, time + reception[idx])
-
-        # 5. 정비 대기 고객 -> 빈 정비 창구
-        for idx in range(M):
-            if using_repair[idx] is None and waiting_repair:
-                person = waiting_repair.popleft()
-
-                using_repair[idx] = (person, time + repair[idx])
-
-                # A번 접수 창구와 B번 정비 창구 이용 확인
-                if reception_log[person] == A - 1 and idx == B - 1:
-                    total += person + 1
-
-        time += 1
-
-    print(f'#{tc} {total if total > 0 else - 1}')
+    print(f'#{tc} {max_house}')
