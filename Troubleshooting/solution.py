@@ -1,67 +1,140 @@
-# 26. 10. 28
-# SWEA 1248. 공통조상
-# 1차 시도: PASS(35분)
+# 26. 10. 29.
+# SWEA 5650. 핀볼 게임
+# 2차 시도: 47분(PASS) / 24분(분석) 23분(코드 작성)
 
 """
-목표: 이진 트리가 주어진다.
-    1. 임의의 두 정점에서 가장 가까운 공통 조상을 찾고
-    2. 그 정점을 루트로 하는 서브 트리의 크기를 구하라.
-상태: 
-    1. big_papa = 공통 조상
-    2. total = 트리의 크기
-    3. son_node = 자식:부모 를 담는 딕셔너리
-    4. parent_node = 부모:자식 을 담는 딕셔너리
-자료구조: 딕셔너리
+목표: N x N 핀볼 게임판이 주어진다.
+    1. 핀볼이 출발 위치로 돌아오거나, 블랙홀에 빠질 때 게임은 끝난다.
+    2. 벽이나 블록에 부딪히면 점수가 1점 오른다.
+    3. 출발 위치와 진행 방향을 임의로 선정하여, 게임에서 얻을 수 있는 점수의 최댓값을 구하라.
+상태:
+    1. max_score = 현재 찾은 최대 점수
+    2. wormhole = 웜홀의 좌표를 담은 딕셔너리. 크기: [좌표, 좌표]
+자료구조: 시뮬레이션, 델타 이동, 딕셔너리
 핵심로직:
-    1. 간선의 부모를 찾으려면 어떻게 해야되지?
-        1. 딕셔너리? key, value를 자식, 부모로 두면
-        2. N1, N2에서 시작해서 value가 1이 나올때까지 부모 탐색을 반복해서 리스트에 넣기?
-        3. 그 후 N1을 순서대로 순회하며 N2에 있다면 그게 최단 공통 조상?
-    2. 공통 조상 루트 트리의 크기를 어떻게 구하지?
-        1. 딕셔너리. key, value를 부모, 자식으로 두면
-        2. big_papa에서 시작해서 자식들을 리스트에 넣고
-        3. 그 리스트가 완전히 빌 때까지 자식을 탐색
-        4. 자식을 탐색할때마다 total += 1
-종료조건: find_size가 비었을 때, big_papa, total 출력
-시간복잡도: O(E)
+    1. 공의 시작 지점, 방향 설정
+    2. play_game 함수로 점수 갱신
+    3. 여러 블록들 처리 필요
+종료조건:
+시간복잡도:
 """
 
 ''' 메모장
-
+1. 시뮬레이션인 것 같다.
+2. 공의 시작과 방향은 다음과 같이.
+    1. for row in range(N):
+        for col in range(N):
+            if grid[row][col] == 0:
+                for d in range(4):
+                    play_game(row, col, d)
+3. play_game 함수에서 동작하는 코드들
+    0. 극한 반복. while True:
+    1. nr = r + dr[d] / nc = c + dc[d]
+    2. 여기서부터 다양한 블록들 처리.
+        0. current = grid[nr][nc]
+        1. if grid[nr][nc] == -1:   # 블랙홀
+            return score
+        2. if nr, nc == row, col:   # 출발 지점
+            return score
+        3. 웜홀이면 딕셔너리에서 nr, nc와 같지 않는 것이 nr, nc가 됨
+        4. 5 또는 벽이면 d를 반대 방향으로 바꿈 / reverse_d 필요
+        5. 삼각 블록이면, d가 딕셔너리에 있는지 확인 후 방향을 바꿈 / 어떻게?
+            1. 이게 문제네 그냥 하드코딩 해버릴까. 그러자.
 '''
+
+def play_game(r, c, d):
+    score = 0
+    nr, nc = r, c
+
+    while True:
+        nr = nr + dr[d]
+        nc = nc + dc[d]
+
+        if not (0 <= nr < N and 0 <= nc < N) or grid[nr][nc] == 5:  # 벽과 정사각형 블록 처리
+            d = reverse_d[d]
+            score += 1
+            continue
+
+        current = grid[nr][nc]
+
+        if current == -1:   #블랙홀 처리
+            return score
+
+        if (nr, nc) == (r, c):  #출발지점 처리
+            return score
+
+        if 6 <= current <= 10:  #웜홀 처리
+            for cr, cc in wormhole[current]:
+                if (cr, cc) != (nr, nc):
+                    nr, nc = cr, cc
+                    break
+            continue
+
+        if current == 1:
+            if d not in (1, 2):
+                d = reverse_d[d]
+                score += 1
+                continue
+            if d == 1:
+                d = 3
+            elif d == 2:
+                d = 0
+            score += 1
+        elif current == 2:
+            if d not in (0, 2):
+                d = reverse_d[d]
+                score += 1
+                continue
+            if d == 0:
+                d = 3
+            elif d == 2:
+                d = 1
+            score += 1
+        elif current == 3:
+            if d not in (3, 0):
+                d = reverse_d[d]
+                score += 1
+                continue
+            if d == 3:
+                d = 1
+            elif d == 0:
+                d = 2
+            score += 1
+        elif current == 4:
+            if d not in (1, 3):
+                d = reverse_d[d]
+                score += 1
+                continue
+            if d == 1:
+                d = 2
+            elif d == 3:
+                d = 0
+            score += 1
+
+dr = [-1, 1, 0, 0]
+dc = [0, 0, -1, 1]
+reverse_d = [1, 0, 3, 2]
 
 T = int(input())
 for tc in range(1, T + 1):
-    V, E, N1, N2 = map(int, input().split())
-    origin = list(map(int, input().split()))
+    N = int(input())
+    grid = [list(map(int, input().split())) for _ in range(N)]
 
-    son_node = {}
-    parent_node = {}
-    for i in range(0, E * 2, 2):
-        parent, son = origin[i], origin[i + 1]
-        son_node[son] = parent
-        parent_node.setdefault(parent, [])
-        parent_node[parent].append(son)
+    max_score = 0
+    wormhole = {}
 
-    ancestors = set()
-    now = N1
+    for r in range(N):  # 웜홀 좌표 찾기
+        for c in range(N):
+            current = grid[r][c]
+            if 6 <= current <= 10:
+                wormhole.setdefault(current, [])
+                wormhole[current].append((r, c))
 
-    while now:
-        ancestors.add(now)
-        now = son_node.get(now, 0)
+    for row in range(N):
+        for col in range(N):
+            if grid[row][col] == 0:    
+                for direction in range(4):
+                    result = play_game(row, col, direction)
+                    max_score = max(max_score, result)
 
-    now = N2
-    while now not in ancestors:
-        now = son_node[now]
-
-    big_papa = now
-
-    stack = [big_papa]
-    total = 0
-
-    while stack:
-        now = stack.pop()
-        total += 1
-        stack.extend(parent_node.get(now, []))
-
-    print(f'#{tc} {big_papa} {total}')
+    print(f'#{tc} {max_score}')
