@@ -1,140 +1,45 @@
 # 26. 10. 29.
-# SWEA 5650. 핀볼 게임
-# 2차 시도: 47분(PASS) / 24분(분석) 23분(코드 작성)
+# SWEA 5658. 보물상자 비밀번호
+# 30분 PASS
 
 """
-목표: N x N 핀볼 게임판이 주어진다.
-    1. 핀볼이 출발 위치로 돌아오거나, 블랙홀에 빠질 때 게임은 끝난다.
-    2. 벽이나 블록에 부딪히면 점수가 1점 오른다.
-    3. 출발 위치와 진행 방향을 임의로 선정하여, 게임에서 얻을 수 있는 점수의 최댓값을 구하라.
+목표: 각 변에 16진수 숫자들이 적혀있는 보물상자가 있다.
+    1. 시계방향으로 회전시켜 숫자들을 한 칸씩 회전시킬 수 있다.
+    2. 회전하며 만들 수 있는 숫자들 중 10번째로 큰 수를 10진수로 만든 수를 구하라
 상태:
-    1. max_score = 현재 찾은 최대 점수
-    2. wormhole = 웜홀의 좌표를 담은 딕셔너리. 크기: [좌표, 좌표]
-자료구조: 시뮬레이션, 델타 이동, 딕셔너리
+자료구조:
 핵심로직:
-    1. 공의 시작 지점, 방향 설정
-    2. play_game 함수로 점수 갱신
-    3. 여러 블록들 처리 필요
-종료조건:
+    1. 몇 번을 돌리면 0회전과 동일한 값이 나올까? 
+        1. 각 변마다 part_4 = N // 4 개씩 숫자가 들어간다.
+        2. part_4 번 돌리면 0회전과 동일한 값이 나온다.
+        3. 그러니, (part_4 - 1)번까지 돌리면 된다.
+    2. 회전시키는 방법은 간단하다.
+    3. for _ in range(part_4):
+        1. first = number_16.pop()
+        2. number_16 = [first] + number_16
+        3. for i in range(4):
+            total.add(number_16[part_4 * i:part_4 + part_4 * i])
+    4. 16진수 문자열을 10진수 숫자로 형변환하고 정렬한 후 [K - 1]번쨰 숫자를 출력
+종료조건: 반복문이 종료되면 [K -1]번째 숫자를 출력
 시간복잡도:
 """
 
-''' 메모장
-1. 시뮬레이션인 것 같다.
-2. 공의 시작과 방향은 다음과 같이.
-    1. for row in range(N):
-        for col in range(N):
-            if grid[row][col] == 0:
-                for d in range(4):
-                    play_game(row, col, d)
-3. play_game 함수에서 동작하는 코드들
-    0. 극한 반복. while True:
-    1. nr = r + dr[d] / nc = c + dc[d]
-    2. 여기서부터 다양한 블록들 처리.
-        0. current = grid[nr][nc]
-        1. if grid[nr][nc] == -1:   # 블랙홀
-            return score
-        2. if nr, nc == row, col:   # 출발 지점
-            return score
-        3. 웜홀이면 딕셔너리에서 nr, nc와 같지 않는 것이 nr, nc가 됨
-        4. 5 또는 벽이면 d를 반대 방향으로 바꿈 / reverse_d 필요
-        5. 삼각 블록이면, d가 딕셔너리에 있는지 확인 후 방향을 바꿈 / 어떻게?
-            1. 이게 문제네 그냥 하드코딩 해버릴까. 그러자.
-'''
-
-def play_game(r, c, d):
-    score = 0
-    nr, nc = r, c
-
-    while True:
-        nr = nr + dr[d]
-        nc = nc + dc[d]
-
-        if not (0 <= nr < N and 0 <= nc < N) or grid[nr][nc] == 5:  # 벽과 정사각형 블록 처리
-            d = reverse_d[d]
-            score += 1
-            continue
-
-        current = grid[nr][nc]
-
-        if current == -1:   #블랙홀 처리
-            return score
-
-        if (nr, nc) == (r, c):  #출발지점 처리
-            return score
-
-        if 6 <= current <= 10:  #웜홀 처리
-            for cr, cc in wormhole[current]:
-                if (cr, cc) != (nr, nc):
-                    nr, nc = cr, cc
-                    break
-            continue
-
-        if current == 1:
-            if d not in (1, 2):
-                d = reverse_d[d]
-                score += 1
-                continue
-            if d == 1:
-                d = 3
-            elif d == 2:
-                d = 0
-            score += 1
-        elif current == 2:
-            if d not in (0, 2):
-                d = reverse_d[d]
-                score += 1
-                continue
-            if d == 0:
-                d = 3
-            elif d == 2:
-                d = 1
-            score += 1
-        elif current == 3:
-            if d not in (3, 0):
-                d = reverse_d[d]
-                score += 1
-                continue
-            if d == 3:
-                d = 1
-            elif d == 0:
-                d = 2
-            score += 1
-        elif current == 4:
-            if d not in (1, 3):
-                d = reverse_d[d]
-                score += 1
-                continue
-            if d == 1:
-                d = 2
-            elif d == 3:
-                d = 0
-            score += 1
-
-dr = [-1, 1, 0, 0]
-dc = [0, 0, -1, 1]
-reverse_d = [1, 0, 3, 2]
-
 T = int(input())
 for tc in range(1, T + 1):
-    N = int(input())
-    grid = [list(map(int, input().split())) for _ in range(N)]
+    N, K = map(int, input().split())
+    number_16 = list(input())
 
-    max_score = 0
-    wormhole = {}
+    part_4 = N // 4
+    total = set()
 
-    for r in range(N):  # 웜홀 좌표 찾기
-        for c in range(N):
-            current = grid[r][c]
-            if 6 <= current <= 10:
-                wormhole.setdefault(current, [])
-                wormhole[current].append((r, c))
+    for _ in range(part_4):
+        first = number_16.pop()
+        number_16 = [first] + number_16
 
-    for row in range(N):
-        for col in range(N):
-            if grid[row][col] == 0:    
-                for direction in range(4):
-                    result = play_game(row, col, direction)
-                    max_score = max(max_score, result)
+        for i in range(4):
+            total.add(''.join(number_16[part_4 * i:part_4 *(i + 1)]))
 
-    print(f'#{tc} {max_score}')
+    sort_total = sorted(total, reverse=True)
+
+    result = int(sort_total[K - 1], 16)
+    print(f'#{tc} {result}')
