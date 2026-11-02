@@ -1,7 +1,93 @@
 # SWEA 5644. 무선 충전
 # 10. 20. 1차 시도: FAIL(2시간) / 구현 완성도 부족
 # 10. 27. 복습 필요
+# 26. 10. 30.
+# SWEA 5644. 무선 충전
+# 2차 시도: PASS(52분)
+# 졸업
 
+"""
+목표: 10 x 10지도가 주어진다.
+    1. 배터리 충전소 BC가 임의의 영역에 배치되어 있다.
+    2. 사용자 두 명이 (1, 1) / (10, 10)지점에서 주어진 경로로 출발한다.
+    3. 이동 중에 BC와의 거리가 맨해튼 거리 이하로 가까워지면 접속이 가능하다
+    4. 여러 BC중에 연결 가능하면 연결할 BC를 선택할 수 있다
+    5. 한 BC에 두 명의 사용자가 접속할 수도 있으나, 충전 양이 2분의 1로 줄어든다. / BC는 짝수
+    6. 두 사용자가 모든 이동을 마치고 난 후, 충전할 수 있는 최대값을 구하라
+상태:
+    1. total = 현재까지 구한 충전량의 최대값
+자료구조:
+핵심로직:
+    1. 사용자 A, B의 자리에서 선택할 수 있는 BC를 탐색한다.
+        1. 배터리들의 좌표들과의 맨해튼 거리를 구한다
+        2. 맨해튼 거리가 C 이하이면 선택지에 넣는다
+        3. A, B 가 선택할 수 있는 BC의 경우의 수를 완전 탐색한다
+            1. 이중 for문
+        4. 가장 큰 값을 total에 더한다
+    2. 사용자 A, B를 이동시킨다.
+종료조건: 
+시간복잡도: O(MA)
+"""
+
+def find_BC(r, c):
+    current_list = []
+    for i in range(len(BC_info)):
+        if (abs(r - BC_info[i][1]) + abs(c - BC_info[i][0])) <= BC_info[i][2]:
+            current_list.append(i)
+
+    return current_list
+
+
+dr = [0, -1, 0, 1, 0]
+dc = [0, 0, 1, 0, -1]
+
+T = int(input())
+for tc in range(1, T + 1):
+    M, A = map(int, input().split())
+    A_direction = list(map(int, input().split()))
+    B_direction = list(map(int, input().split()))
+    BC_info = [list(map(int, input().split())) for _ in range(A)]   # [X, Y, C, P]
+
+    total = 0
+    ar, ac = 1, 1
+    br, bc = 10, 10
+
+    T = 0
+
+    while T < M + 1:
+        current = 0
+
+        BC_of_A = find_BC(ar, ac)
+        BC_of_B = find_BC(br, bc)
+
+        if BC_of_A and BC_of_B:
+            for a in BC_of_A:
+                for b in BC_of_B:
+                    if a != b:
+                        current = max(current, BC_info[a][3] + BC_info[b][3])
+                    elif a == b:
+                        current = max(current, BC_info[a][3])
+        elif BC_of_A:
+            for a in BC_of_A:
+                current = max(current, BC_info[a][3])
+        elif BC_of_B:
+            for b in BC_of_B:
+                current = max(current, BC_info[b][3])
+
+        total += current
+
+        if T == M:
+            break
+
+        ar = ar + dr[A_direction[T]]
+        ac = ac + dc[A_direction[T]]
+        br = br + dr[B_direction[T]]
+        bc = bc + dc[B_direction[T]]
+
+        T += 1
+
+
+    print(f'#{tc} {total}')
 """
 목표: BC들이 설치되어 있는 10 x 10 지도가 주어진다. 
     1. 사용자 A, B가 주어진 궤적으로 이동한다
