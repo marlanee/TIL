@@ -1,43 +1,50 @@
 """
-26.11.03.
-SWEA 1242. 암호코드 스캔
-1차 시도: 17:13
+26.11.04. SWEA 7396. 종구의 딸이름 짓기
+1차 시도: 17분
 
-목표: 세로 2000 x 가로 500 이하의 크기를 가진 직사각형 배열이 주어진다.
-    1. 배열은 16진수이며, 배열을 2진수로 변환하여 암호코드인지 확인해야 한다.
-    2. 배열에는 1개 이상의 암호코드가 존재한다. 정상 암호들의 숫자들의 합을 출력하라
-    3. 암호코드는 8개의 숫자로 구성되어 있다. (7개 고유번호 + 1개 검증코드)
-    4. 각 숫자 하나가 차지하는 최소 칸수는 7개 비트로, 암호코드 하나의 최소 가로 길이는 56이다.
-    5. 암호코드의 가로 길이는 56의 배수가 된다. 
-상태:
-자료구조: 
+목표:
 핵심로직:
-    1. 16진수를 2진수로 변환
-    2. 오른쪽부터 체크해서 1일 경우, 우선 56개를 담고 다음 숫자가 0이 아닐 때까지 담음
-    3. 다 담으면 len(list) // 8이 한 숫자의 비트임.
-    4. 인덱스 슬라이싱 해서 숫자를 해독함
-    5. 슬라이싱한 리스트를 순회하며 숫자가 바뀔 때마다 크기를 기록하고 리스트에 넣음 -> 비율이 됨
-    6. 리스트에 넣을 때는, 숫자의 크기 // (len(list) // 56)을 해줌.
-    7. 모든 숫자의 해독이 끝나면, 크기 기록 리스트를 순회하며 딕셔너리를 통해 10진수 숫자로 바꿈
-    8. 유효한지 검증함.
-    9. 검증이 완료되면 total에 더함
-
-종료조건: 
-시간복잡도:
+    1. grid를 숫자로 변환한다
+    2. 오른쪽, 아래쪽 중에서 작은 번호를 선택한다. 리스트에 넣는다
+    3. 우측 하단에 도착하면 종료한다
+    4. 리스트 요소들을 알파벳으로 변환한다.
+    5. 알파벳을 문자로 묶어 반환한다.
+시간복잡도: O(N)
 """
+
+dr = [1, 0]
+dc = [0, 1]
 
 T = int(input())
 for tc in range(1, T + 1):
     N, M = map(int, input().split())
-    grid = []
+    grid = [[] for _ in range(N)]
 
-    for _ in range(N):
-        row_16 = input().strip()
+    for i in range(N):
+        current = input()
+        for j in current:
+            grid[i].append(ord(j))
 
-        row_2 = ''.join(format(int(ch, 16), '04b') for ch in row_16)
-        grid.append(row_2)
+    num_total = [grid[0][0]]
 
-    
+    r, c = 0, 0
 
-    
-    
+    while (r, c) != (N - 1, M - 1):
+        min_num = float('inf')
+        for d in range(2):
+            nr = r +dr[d]
+            nc = c +dc[d]
+
+            if not (0 <= nr < N and 0 <= nc < M):
+                continue
+
+            if min_num > grid[nr][nc]:
+                min_num = grid[nr][nc]
+                tr, tc = nr, nc
+
+        num_total.append(grid[tr][tc])
+
+        r, c = tr, tc
+
+    result = ''.join(chr(x) for x in num_total)
+    print(result)
