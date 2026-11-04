@@ -1,0 +1,20 @@
+{
+  "ruff.enable": true,
+  "ruff.lint.enable": true,
+  "ruff.lint.select": [
+    "E4",
+    "E7",
+    "E9",
+    "F",
+    "B"
+  ],
+  "ruff.fixAll": false,
+  "ruff.organizeImports": false,
+  "[python]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "never",
+      "source.organizeImports.ruff": "never"
+    }
+  }
+}

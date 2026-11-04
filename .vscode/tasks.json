@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AI 힌트 리뷰: Codex (현재 파일)",
+      "type": "process",
+      "command": "C:\\Users\\SSAFY\\.vscode\\extensions\\openai.chatgpt-26.1021.22027-win32-x64\\bin\\windows-x86_64\\codex.exe",
+      "args": [
+        "exec",
+        "--sandbox",
+        "read-only",
+        "--ephemeral",
+        "--color",
+        "never",
+        "-c",
+        "approval_policy=\"never\"",
+        "AGENTS.md와 CLAUDE.md의 학습 지침을 적용하여 다음 파일만 읽고 한국어로 리뷰해 줘. 정답/완성 코드를 공개하거나 파일을 수정/실행하지 말고 접근, 논리 오류, 시간/공간 복잡도, 코드 품질을 평가해 줘. 가장 중요한 문제 최대 3개와 다음 힌트 하나만 알려줘. 문제 설명이 없으면 한계를 밝혀 줘. 파일 경로: ${file}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "detail": "Python 파일을 저장한 뒤 실행. 계정 사용량을 소비하며, 결과는 작업 터미널에 표시됩니다."
+    },
+    {
+      "label": "AI 힌트 리뷰: Claude (현재 파일)",
+      "type": "process",
+      "command": "C:\\Users\\SSAFY\\.vscode\\extensions\\anthropic.claude-code-2.1.317-win32-x64\\resources\\native-binary\\claude.exe",
+      "args": [
+        "-p",
+        "AGENTS.md와 CLAUDE.md의 학습 지침을 적용하여 다음 파일만 읽고 한국어로 리뷰해 줘. 정답/완성 코드를 공개하거나 파일을 수정/실행하지 말고 접근, 논리 오류, 시간/공간 복잡도, 코드 품질을 평가해 줘. 가장 중요한 문제 최대 3개와 다음 힌트 하나만 알려줘. 문제 설명이 없으면 한계를 밝혀 줘. 파일 경로: ${file}",
+        "--tools",
+        "Read",
+        "--allowedTools",
+        "Read",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--max-turns",
+        "6",
+        "--no-session-persistence",
+        "--output-format",
+        "text"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "detail": "Python 파일을 저장한 뒤 실행. 계정 사용량을 소비하며, 결과는 작업 터미널에 표시됩니다."
+    }
+  ]
+}
