@@ -7,7 +7,104 @@
 # 1차 복습: 1시간(FAIL) -> 힌트 참조 후 3분(PASS)
 # 부족한 점: 백트래킹(객체 복사) / 중력 처리
 # 10. 30. 복습 필요
+"""
+261105. SWEA 5656. 벽돌 깨기
+3차 시도: 40분(FAIL) -> 10분PASS(최적화 + 힌트)
+11. 11. 복습 필요
 
+목표: W x H 배열이 주어진다. / 벽돌이 들어있다(1 이상의 숫자)
+    1. 구슬은 좌, 우로만 움직이며 항상 맨 위의 벽돌만 깨뜨릴 수 있다
+    2. 구슬이 명중한 벽돌은 상하좌우로 (벽돌에 적힌 숫자 -1)만큼 터진다. / 연쇄 폭발
+    3. 연쇄 폭발이 끝난 후, 빈 공간이 있을 경우 벽돌들은 밑으로 떨어지게 된다.
+    4. N개의 벽돌을 떨어뜨려 최대한 많은 벽돌을 제거하라
+    5. 최종 산출물: 남은 벽돌의 개수
+핵심로직: DFS/백트래킹, 델타 탐색
+    1. (0 ~ W - 1)까지의 임의의 열에 구슬을 떨어뜨린다. / for -> 재귀함수 호출
+    2. 연쇄 폭발 코드를 작성한다
+    3. 중력 코드를 작성한다.
+    4. 바뀐 grid로 재귀함수를 호출한다
+시간복잡도:
+"""
+def dfs(grid, count):
+    global min_bricks
+
+    if min_bricks == 0:
+        return
+
+    if count == 0:  # 구슬 다 썼으면 남은 개수 계산
+        total = W * H
+        for row in grid:
+            total -= row.count(0)
+
+        min_bricks = min(min_bricks, total)
+        return
+
+    for col in range(W):
+        next_grid = [row[:] for row in grid]
+
+        # 폭발 코드 작성
+        explosion(next_grid, col)
+        # 중력 코드 작성
+        gravity(next_grid)
+        # 재귀 호출
+        dfs(next_grid, count - 1)
+
+
+def explosion(grid, c): # 폭발 함수
+    for r in range(H):
+        if grid[r][c] != 0:
+            break
+    else:
+        return
+
+    q = [(r, c, grid[r][c])]
+    grid[r][c] = 0
+
+    while q:
+        r, c, power = q.pop()
+
+        for p in range(1, power):
+            for d in range(4):
+                nr = r + dr[d] * p
+                nc = c + dc[d] * p
+
+                if not (0 <= nr < H and 0 <= nc < W):
+                    continue
+
+                if grid[nr][nc] == 0:
+                    continue
+
+                q.append((nr, nc, grid[nr][nc]))
+                grid[nr][nc] = 0
+
+def gravity(grid):  # 중력 함수
+
+    for c in range(W):
+        bricks = []
+        for r in range(H):
+            current = grid[r][c]
+            if current != 0:
+                bricks.append(current)
+
+        for r in range(H - 1, -1, -1):
+            if not bricks:
+                grid[r][c] = 0
+                continue
+            target = bricks.pop()
+            grid[r][c] = target
+            
+dr = [1, -1, 0, 0]
+dc = [0, 0, 1, -1]
+        
+T = int(input())
+for tc in range(1, T + 1):
+    N, W, H = map(int, input().split())
+    grid = [list(map(int, input().split())) for _ in range(H)]
+    min_bricks = W * H
+
+    dfs(grid, N)
+    
+    print(f'#{tc} {min_bricks}')
 """
 목표: 벽돌이 들어 있는 W x H 게임판이 주어진다.
     1. 구슬을 떨어뜨려 벽돌을 깨뜨린다.
