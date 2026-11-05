@@ -1,6 +1,2 @@
-from collections import deque
-
-a = [[2, 2], [1, 2]]
-a.sort()
-
-print(a)
+a = [1, 2, 3, 4]
+print(a[1:2])
