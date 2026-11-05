@@ -2,6 +2,11 @@
 # 26. 10. 22
 # 1차 시도: FAIL(2시간)
 # 10. 26. 복습 필요
+<<<<<<<< HEAD:Troubleshooting/SWEA/D4/11_05_2477.py
+========
+# 2차 실패
+# 11. 10. 복습 필요
+>>>>>>>> e878e5d3996c8a35183726f0c6d714ab1870080b:Troubleshooting/SWEA/D4/11_10_2477.py
 '''
 26. 11. 02.
 SWEA 2477. 차량 정비소
@@ -70,11 +75,23 @@ for tc in range(1, T + 1):
             if check >= 0:
                 check -= 1
                 if check == 0:
+<<<<<<<< HEAD:Troubleshooting/SWEA/D4/11_05_2477.py
                     repair_waiting.append(user_idx)
+========
+                    add_waiting.append([recept_idx, user_idx])
+>>>>>>>> e878e5d3996c8a35183726f0c6d714ab1870080b:Troubleshooting/SWEA/D4/11_10_2477.py
                     using_recept[recept_idx] = [-1, -1]
                     continue
                 using_recept[recept_idx] = [user_idx, check]
 
+<<<<<<<< HEAD:Troubleshooting/SWEA/D4/11_05_2477.py
+========
+        # 정비 창구 대기열에 넣기
+        add_waiting.sort()
+        for recept_idx, user_idx in add_waiting:
+            repair_waiting.append(user_idx)
+
+>>>>>>>> e878e5d3996c8a35183726f0c6d714ab1870080b:Troubleshooting/SWEA/D4/11_10_2477.py
         for recept_idx, (user_idx, check) in enumerate(using_recept):   # 접수 대기열 -> 접수
             if not recept_waiting:
                 break
