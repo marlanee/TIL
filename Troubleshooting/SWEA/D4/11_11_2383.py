@@ -8,6 +8,119 @@
 # SWEA 2383. 점심 식사시간
 # 2차 복습: 80분(FAIL) + 힌트 참조 3분(PASS)
 # 10. 31. 3차 복습 필요
+
+# 261105. SWEA 2383. 점심 식사시간
+# 4차 시도: PASS(70분) -> 최적화
+# 11. 11 최종 복습필요
+"""
+핵심로직: DFS + 정렬 기반 계단 시간 계산
+    1. 사람마다 A, B계단까지의 이동 시간을 계산한다.
+    2. DFS로 각 사람을 A 또는 B계단에 배정한다.
+    3. 계단별 도착 시간을 정렬한다.
+    4. 동시에 최대 3명만 내려갈 수 있으므로
+       4번째 사람부터는 3명 앞 사람의 완료 시간을 확인한다.
+    5. 두 계단 중 늦게 끝나는 시간을 구하고 최솟값을 갱신한다.
+
+시간복잡도: O(N² + 2^P * P log P)
+    P = 사람 수
+"""
+
+def down_stairs(walk_times, stair_time):
+    if not walk_times:
+        return 0
+
+    # 계단까지 이동 시간이 짧은 사람부터 처리
+    arrivals = sorted(walk_times)
+    finish_times = []
+
+    for i, arrival in enumerate(arrivals):
+        # 계단 도착 1분 후 입장 가능
+        start = arrival + 1
+
+        # 계단에는 최대 3명만 입장 가능
+        if i >= 3:
+            start = max(start, finish_times[i - 3])
+
+        finish_times.append(start + stair_time)
+
+    return finish_times[-1]
+
+
+def dfs(person_idx):
+    global min_time
+
+    # 모든 사람의 계단 배정 완료
+    if person_idx == people_num:
+        A_result = down_stairs(stair_A, A_time)
+
+        # 가지치기
+        if A_result >= min_time:
+            return
+
+        B_result = down_stairs(stair_B, B_time)
+
+        result = max(A_result, B_result)
+        min_time = min(min_time, result)
+        return
+
+    # 현재 사람을 A계단에 배정
+    stair_A.append(down_A[person_idx])
+    dfs(person_idx + 1)
+    stair_A.pop()
+
+    # 현재 사람을 B계단에 배정
+    stair_B.append(down_B[person_idx])
+    dfs(person_idx + 1)
+    stair_B.pop()
+
+
+T = int(input())
+for tc in range(1, T + 1):
+    N = int(input())
+    grid = [list(map(int, input().split())) for _ in range(N)]
+
+    people = []
+    stair = []
+
+    # 사람과 계단 좌표 찾기
+    for r in range(N):
+        for c in range(N):
+            current = grid[r][c]
+
+            if current == 1:
+                people.append((r, c))
+            elif current >= 2:
+                stair.append((r, c))
+
+    people_num = len(people)
+
+    Ar, Ac = stair[0]
+    Br, Bc = stair[1]
+
+    A_time = grid[Ar][Ac]
+    B_time = grid[Br][Bc]
+
+    down_A = []
+    down_B = []
+
+    # 각 사람이 계단까지 이동하는 시간 계산
+    for r, c in people:
+        a = abs(r - Ar) + abs(c - Ac)
+        b = abs(r - Br) + abs(c - Bc)
+
+        down_A.append(a)
+        down_B.append(b)
+
+    # 각 계단에 배정된 사람들의 이동 시간
+    stair_A = []
+    stair_B = []
+
+    min_time = float('inf')
+
+    dfs(0)
+
+    print(f'#{tc} {min_time}')
+
 """
 목표: N * N 방에 사람들이 앉아 있다.
     1. 점심을 먹기 위해 계단으로 모든 사람들이 아래 층으로 내려가야 한다
