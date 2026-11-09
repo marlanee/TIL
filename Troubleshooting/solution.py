@@ -1,61 +1,98 @@
-# 261106 programmers 불량 사용자
-# 1차 시도: FAIL(40분) / DFS 구현 실패
-# 11. 12. 복습 필요
-
+# 261109. SWEA 5656. 벽돌 깨기
+# 3차 시도: PASS(25분)
+# 졸업
 """
-목표: 유저들의 아이디와 '*'로 매핑된 불량 아이디가 주어진다. 
-    1. 불량 아이디가 될 수 있는 유저들의 아이디의 경우의 수를 구하라
-핵심로직:
-    1. 불량 아이디 하나당 몇개의 원본 아이디가 될 수 있는지 탐색한다
-        1. 길이가 같은지 확인한다.
-        2. 한 자릿수씩 확인하며 일치하는지 확인한다.
-        3. 일치한다면 이미 탐색한 아이디인지 확인한다
-        4. current += 1을 한다 / seen 에 넣는다
-        5. total에 current를 곱한다.
-시간복잡도:
+목표: W x H 게임판이 주어진다.
+    1. N개의 구슬을 떨어뜨려 가장 많은 벽돌을 부수려고 한다
+    2. 남은 벽돌의 개수를 구하라.
+    3. 벽돌에 새겨진 숫자 - 1 만큼 상하좌우로 연쇄 폭발한다.
+핵심로직: DFS / 백트래킹
+    1. 각 열마다 구슬을 떨어뜨리는 완전 탐색 로직 구현
+    2. 열을 선택 후 연쇄 폭발 작용
+    3. 연쇄 폭발 후 중력 작용
+    4. dfs 호출
+    5. 남은 구슬이 없으면 return
+시간복잡도: O(W^N * WH)
 """
 
+from collections import deque
 
-def solution(user_id, banned_id):
-    global candidate, total
+def dfs(count, grid):
+    global total
+    if total == 0:
+        return
+    if count == N:
+        # 남은 구슬 세는 코드
+        result = count_left(grid)
+        total = min(total, result)
+        return
 
-    candidate = [[] for _ in range(len(banned_id))]
-    for idx, bid in enumerate(banned_id):
-        for uid in user_id:
-            if len(bid) != len(uid):
-                continue
-            for i in range(len(bid)):
-                if bid[i] == '*':
-                    continue
-                else:
-                    if bid[i] != uid[i]:
-                        break
-            else:
-                candidate[idx].append(uid)
+    # 구슬 선택하는 코드
+    for col in range(W):
+        next_grid = [row[:] for row in grid]
 
-    total = set()
+        # 연쇄 폭발 코드
+        explosion(col, next_grid)
 
-    def dfs(idx, current):
+        # 중력 코드
+        gravity(next_grid)
 
-        if idx == len(candidate):
-            total.add(frozenset(current))
-            return
+        dfs(count + 1, next_grid)
 
-        for uid in candidate[idx]:
+def gravity(grid):
+    for col in range(W):
+        before = []
+        for row in range(H): 
+            current = grid[row][col]
+            if current:
+                before.append(current)
 
-            if uid in current:
-                continue
+        for row in range(H - 1, -1, -1):
+            grid[row][col] = before.pop() if before else 0
 
-            current.add(uid)
-            dfs(idx + 1, current)
-            current.remove(uid)
+def count_left(grid):
+    total = W * H
+    for row in grid:
+        total -= row.count(0)
 
-    dfs(0, set())
+    return total
 
-    return len(total)
+def explosion(col, grid):
+    for row in range(H):
+        if grid[row][col] != 0:
+            break
+    else:
+        return
+
+    q = deque()
+    q.append((row, col, grid[row][col]))
+    grid[row][col] = 0
+
+    while q:
+        r, c, power = q.popleft()
+
+        for d in range(4):
+            for p in range(1, power):
+                nr = r + dr[d] * p
+                nc = c + dc[d] * p
+
+                if not (0 <= nr < H and 0 <= nc < W):
+                    break
+
+                if grid[nr][nc] != 0:
+                    q.append((nr, nc, grid[nr][nc]))
+                    grid[nr][nc] = 0
 
 
-user_id = ["frodo", "fradi", "crodo", "abc123", "frodoc"]
-banned_id = ["fr*d*", "*rodo", "******", "******"]
+dr = [1, -1, 0, 0]
+dc = [0, 0, 1, -1]
 
-print(solution(user_id, banned_id))
+T = int(input())
+for tc in range(1,  T + 1):
+    N, W, H = map(int, input().split())
+    grid = [list(map(int, input().split())) for _ in range(H)]
+    total = W * H
+
+    dfs(0, grid)
+
+    print(f'#{tc} {total}')
