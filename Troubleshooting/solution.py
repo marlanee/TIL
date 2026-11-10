@@ -1,98 +1,89 @@
-# 261109. SWEA 5656. 벽돌 깨기
-# 3차 시도: PASS(25분)
+# 261109. SWEA 2383. 점심 식사시간
+# 4차 시도: PASS(38분)
 # 졸업
+
 """
-목표: W x H 게임판이 주어진다.
-    1. N개의 구슬을 떨어뜨려 가장 많은 벽돌을 부수려고 한다
-    2. 남은 벽돌의 개수를 구하라.
-    3. 벽돌에 새겨진 숫자 - 1 만큼 상하좌우로 연쇄 폭발한다.
-핵심로직: DFS / 백트래킹
-    1. 각 열마다 구슬을 떨어뜨리는 완전 탐색 로직 구현
-    2. 열을 선택 후 연쇄 폭발 작용
-    3. 연쇄 폭발 후 중력 작용
-    4. dfs 호출
-    5. 남은 구슬이 없으면 return
-시간복잡도: O(W^N * WH)
+목표: N x N 방이 있다.
+    1. 모든 사람들이 두 개의 계단 중 하나로 내려가야 한다.
+    2. 계단 입구까지 이동 시간은 멘헤튼 거리와 같다.
+    3. 계단은 동시에 최대 3명까지 사용 가능하다
+    4. 계단 입구에 도착하면 1분 후 아래칸으로 이동 가능하다
+    5. 모든 사람들이 계단까지 내려가는 최소 시간을 구하라
+핵심로직:
+    1. 계단의 좌표를 구한다.
+    2. 각 사람들이 A, B 계단으로 내려가는 시간을 리스트로 만든다
+    3. dfs로 사람들을 A 또는 B 계단으로 완전 탐색으로 담는다.
+    4. 다 담으면 시간을 계산한다.
+    5. 시간을 갱신한다.
+시간복잡도:
 """
 
-from collections import deque
+def dfs(count):
+    global min_time
 
-def dfs(count, grid):
-    global total
-    if total == 0:
-        return
-    if count == N:
-        # 남은 구슬 세는 코드
-        result = count_left(grid)
-        total = min(total, result)
-        return
-
-    # 구슬 선택하는 코드
-    for col in range(W):
-        next_grid = [row[:] for row in grid]
-
-        # 연쇄 폭발 코드
-        explosion(col, next_grid)
-
-        # 중력 코드
-        gravity(next_grid)
-
-        dfs(count + 1, next_grid)
-
-def gravity(grid):
-    for col in range(W):
-        before = []
-        for row in range(H): 
-            current = grid[row][col]
-            if current:
-                before.append(current)
-
-        for row in range(H - 1, -1, -1):
-            grid[row][col] = before.pop() if before else 0
-
-def count_left(grid):
-    total = W * H
-    for row in grid:
-        total -= row.count(0)
-
-    return total
-
-def explosion(col, grid):
-    for row in range(H):
-        if grid[row][col] != 0:
-            break
-    else:
+    if count == len(people):
+        # 시간 계산하는 코드
+        A_result = cal_time(A_stair, grid[Ar][Ac])
+        if A_result >= min_time:
+            return
+        B_result = cal_time(B_stair, grid[Br][Bc])
+        min_time = min(min_time, max(A_result, B_result))
         return
 
-    q = deque()
-    q.append((row, col, grid[row][col]))
-    grid[row][col] = 0
+    A_stair.append(A_time[count])
+    dfs(count + 1)
+    A_stair.pop()
 
-    while q:
-        r, c, power = q.popleft()
+    B_stair.append(B_time[count])
+    dfs(count + 1)
+    B_stair.pop()
 
-        for d in range(4):
-            for p in range(1, power):
-                nr = r + dr[d] * p
-                nc = c + dc[d] * p
+def cal_time(stair, time):
+    if not stair:
+        return 0
+    stair = sorted(stair)
 
-                if not (0 <= nr < H and 0 <= nc < W):
-                    break
+    current = []
 
-                if grid[nr][nc] != 0:
-                    q.append((nr, nc, grid[nr][nc]))
-                    grid[nr][nc] = 0
+    for s in range(len(stair)):
+        if s < 3:
+            start = stair[s] + 1
+        else:
+            start = max(stair[s] + 1, current[s - 3])
+        current.append(start + time)
 
+    return current[-1]
 
-dr = [1, -1, 0, 0]
-dc = [0, 0, 1, -1]
 
 T = int(input())
-for tc in range(1,  T + 1):
-    N, W, H = map(int, input().split())
-    grid = [list(map(int, input().split())) for _ in range(H)]
-    total = W * H
+for tc in range(1, T + 1):
+    N = int(input())
+    grid = [list(map(int, input().split())) for _ in range(N)]
 
-    dfs(0, grid)
+    stairs = []
+    people = []
 
-    print(f'#{tc} {total}')
+    for r in range(N):
+        for c in range(N):
+            if grid[r][c] == 1:
+                people.append((r, c))
+            elif grid[r][c] >= 2:
+                stairs.append((r, c))
+
+    Ar, Ac = stairs[0][0], stairs[0][1]
+    Br, Bc = stairs[1][0], stairs[1][1]
+
+    A_time = []
+    B_time = []
+
+    for r, c in people:
+        A_time.append(abs(Ar - r) + abs(Ac - c))
+        B_time.append(abs(Br - r) + abs(Bc - c))
+
+    min_time = float('inf')
+    A_stair = []
+    B_stair = []
+
+    dfs(0)
+
+    print(f'#{tc} {min_time}')
