@@ -1,46 +1,60 @@
-# 261110. SWEA 3421. 수제 버거 장인
-# 1차 시도: RuntimeError(60분)
-# 11. 12 복습 필요
+# 261111. SWEA 1259. 
+# 1차 시도: 17:34
+
 """
-목표: N개의 재료가 주어진다.
-    1. N까지의 숫자를 이용해 가능한 조합을 만들어라
-    2. 다만 grid에 속한 조합은 만들 수 없다.
-    3. 만들 수 있는 조합의 개수가 몇 개인지 구하라
-핵심 로직: frozenset
-    1. 1부터 N개까지 만들 수 있는 조합을 frozenset으로 만든다
-    2. grid에 이미 있다면 만들지 않는다.
-    3. 없다면 total에 넣는다
-    4. total의 길이를 출력한다.
-시간복잡도:
+목표: N개의 금속 막대가 주어진다.
+    1. 금속 막대의 끝부분이 다른 금속 막대의 앞부분과 일치해야 연결된다.
+    2. 어떤 순서로 연결해야 가장 많은 연결하는지를 찾는 프로그램을 작성하라
+    3. 가장 많이 연결하기 위한 금속 막대의 앞부분과 끝부분을 순서대로 출력하라
+    4. 개수가 아닌 순서대로 출력하라는 것은, 모든 나사가 연결되는 케이스밖에 없다는 것인가?
+핵심로직:
+    1. DFS로 모든 경우의 수를 찾고 연결되지 않으면 return?
+    2. 연결되면 리스트 갱신 후 return?
+    3. 더 좋은 방법이 있나? 일단 해보자
 """
-def dfs(idx, current_set):
-    global answer
 
-    answer += 1
+def dfs(count, current):
+    global result
 
-    for j in range(idx + 1, N + 1):
+    if result:
+        return
 
-        if not forbidden[j].isdisjoint(current_set):
-            continue
+    if count == N:
+        # 연결되었는지 확인하는 코드 작성
+        
+        for x in range(0, N - 1):
+            if current[x][1] != current[x + 1][0]:
+                return
+        result = current.copy()
+        return
 
-        current_set.add(j)
-        dfs(j, current_set)
-        current_set.remove(j)
 
-    
+    for j in range(N):
+        if not visited[j]:
+            current.append(NASA[j])
+            visited[j] = True
+            dfs(count + 1, current)
+            current.pop()
+            visited[j] = False
+
 T = int(input())
 for tc in range(1, T + 1):
-    N, M = map(int, input().split())
+    N = int(input())
+    origin = list(map(int, input().split()))
+    NASA = []
+    for i in range(0, 2 * N, 2):
+        NASA.append(origin[i:i + 2])
 
-    forbidden = [set() for _ in range(N + 1)]
+    result = []
+    visited = [False] * N
 
-    for _ in range(M):
-        a, b = map(int, input().split())
-        forbidden[a].add(b)
-        forbidden[b].add(a)
+    dfs(0, [])
 
-    answer = 0
+    print(f'#{tc}', end=' ')
+    for nasa in result:
+        print(nasa[0], nasa[1], end=' ')
 
-    dfs(0, set())
+    print()
 
-    print(f'#{tc} {answer}')
+
+    
