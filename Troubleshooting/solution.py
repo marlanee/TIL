@@ -1,60 +1,36 @@
-# 261111. SWEA 1259. 
-# 1차 시도: 17:34
+# 261112. SWEA 5521. 상원이의 생일파티
+# 1차 시도: 17:02
 
 """
-목표: N개의 금속 막대가 주어진다.
-    1. 금속 막대의 끝부분이 다른 금속 막대의 앞부분과 일치해야 연결된다.
-    2. 어떤 순서로 연결해야 가장 많은 연결하는지를 찾는 프로그램을 작성하라
-    3. 가장 많이 연결하기 위한 금속 막대의 앞부분과 끝부분을 순서대로 출력하라
-    4. 개수가 아닌 순서대로 출력하라는 것은, 모든 나사가 연결되는 케이스밖에 없다는 것인가?
+목표: N명의 학생이 있고, M개의 친한 친구 관계가 있다
+    1. 상원이의 친한 친구와, 친한 친구의 친구만 생일 파티에 초대하려 한다
+    2. 몇 명의 친구들에게 초대장을 주어야 하는지 구하라
+    777. 상식적으로 친한 친구의 친한 친구의 친한 친구는 안 부르겠지.
 핵심로직:
-    1. DFS로 모든 경우의 수를 찾고 연결되지 않으면 return?
-    2. 연결되면 리스트 갱신 후 return?
-    3. 더 좋은 방법이 있나? 일단 해보자
+    1. 친한 친구의 관계를 담은 딕셔너리를 구상한다
+    2. queue를 만들어서 친한 친구로 선정된 친구를 담는다.
+    3. q를 반복하며 또 담는다.
+    4. q가 비면 종료한다.
 """
-
-def dfs(count, current):
-    global result
-
-    if result:
-        return
-
-    if count == N:
-        # 연결되었는지 확인하는 코드 작성
-        
-        for x in range(0, N - 1):
-            if current[x][1] != current[x + 1][0]:
-                return
-        result = current.copy()
-        return
-
-
-    for j in range(N):
-        if not visited[j]:
-            current.append(NASA[j])
-            visited[j] = True
-            dfs(count + 1, current)
-            current.pop()
-            visited[j] = False
 
 T = int(input())
 for tc in range(1, T + 1):
-    N = int(input())
-    origin = list(map(int, input().split()))
-    NASA = []
-    for i in range(0, 2 * N, 2):
-        NASA.append(origin[i:i + 2])
+    N, M = map(int, input().split())
 
-    result = []
-    visited = [False] * N
+    friends = {}
 
-    dfs(0, [])
+    for _ in range(M):
+        a, b = map(int, input().split())
+        friends.setdefault(a, set()).add(b) # 
+        friends.setdefault(b, set()).add(a) #
 
-    print(f'#{tc}', end=' ')
-    for nasa in result:
-        print(nasa[0], nasa[1], end=' ')
+    q = friends.get(1, set())   #
 
-    print()
+    total = set(q) # 세트는 반복이 가능하다!!!!!!
 
+    for i in q:
+        total.update(friends[i])    # update가 뭐냐?
 
-    
+    total.discard(1)    # 이건 또 뭐야?
+
+    print(f'#{tc} {len(total)}')

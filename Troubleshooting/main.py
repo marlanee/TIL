@@ -1,5 +1,5 @@
-a = [frozenset({1, 2}), frozenset({3, 4})]
+a = None
 
-for i in a:
-    if 1 in a and :
-        print(1)
+a += 3
+
+print(a)
