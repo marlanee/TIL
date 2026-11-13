@@ -1,5 +1,4 @@
-a = None
+a = [0, set()]
 
-a += 3
 
 print(a)
