@@ -1,86 +1,67 @@
-# 261112. 기출. 전기자동차 충전소
-# 1차 시도: FAIL(90분)
+# 261113. 기출. 헌터
+# 1차 시도: PASS
 
 """
-목표: N개의 집이 있다. 충전소는 최대 2개까지 설치한다
-    1. 각 집마다 충전소까지 허용 가능한 거리 d가 주어진다. house[n][2]
-    2. 최소한의 충전소를 설치했을 때, 충전소와 N개의 집 사이 거리의 합이 최소가 되도록 값을 구하라
+목표: 상하좌우로 움직이는 헌터는 몬스터를 사냥한다.
+    1. 모든 몬스터가 처리되고 모든 고객들에게 방문하면 작업이 끝난다
+    2. 모든 작업을 완료할 수 있는 최소 시간을 구하라
 핵심로직:
-    1. 완전 탐색으로 할 수 있을 것 같다. 다만 시간복잡도가 최악 O(N^5)일거다.
-        1. 30 x 30 배열에 충전소를 하나씩 두고 조건 만족하는지 확인
-        2. 안된다면 배열에 충전소를 하나 두고 나머지 충전소를 옮기며 조건 만족하는지 확인
-    ?. 오잉? 충전소는 정수라는 말이 없네. 흠..
-    2. 그건 어떨까? 각 집마다 범위가 닿는 격자에 +1씩 더하는거다.
-        1. 격자에 N에 저장되어 있으면 그곳이 정답이다.
-        2. 거리 판단은 튜플로 (N, length) 이런식으로 저장해두면 판별이 쉽다.
-        3. 더 나아가 거리가 닿는 집을 튜플에 넣는거다. (N, length, [house1, house2])
-        4. 그러면 충전소를 두 개 설치했을 때 모든 집에 보급되었는지 확인이 가능하다!
-        5. 딕셔너리에 넣으면 되겠네.
-    !!! 나는 두 번째 방법을 선택하겠다.
+    1. 이것 역시 DFS로 풀면 간단하지 않나?
+    2. 랜덤한 몬스터를 잡고 나서 (시간은 멘헤튼 거리만큼 소요됨)
+    3. 다른 몬스터를 잡으러 가던가, 아니면 잡은 몬스터에 해당하는 고객을 방문하는 분기 생성
+    4. 몬스터도 다 잡고, 고객도 다 방문했다면 시간 갱신.
+    5. 일단 해볼까.
 """
+
+def dfs(r, c, time, meet):
+    global result
+    if time >= result:
+        return
+
+    if meet == M:
+        result = time
+        return
+
+    # 몬스터를 잡으러 가는 코드 작성
+    for i in range(1, M + 1):
+        if i not in m_check:
+            m_check.add(i)
+            mr, mc = monster[i]
+            dfs(mr, mc, time + abs(r - mr) + abs(c - mc), meet)
+            m_check.remove(i)
+
+    # 고객을 만나러 가는 코드 작성
+    for j in range(1, M + 1):
+        if j in m_check and j not in p_check:
+            p_check.add(j)
+            pr, pc = people[j]
+            dfs(pr, pc, time + abs(r - pr) + abs(c - pc), meet + 1)
+            p_check.remove(j)
+    
 
 T = int(input())
 for tc in range(1, T + 1):
     N = int(input())
-    house = [list(map(int, input().split())) for _ in range(N)]
+    grid = [list(map(int, input().split())) for _ in range(N)]
 
-    dist = {}
+    people = {}
+    monster = {}
 
-    house_positions = {(x, y) for x, y, _ in house}
+    for r in range(N):
+        for c in range(N):
+            current = grid[r][c]
+            if current < 0:
+                people[-current] = (r, c)
+            elif current > 0:
+                monster[current] = (r, c)
 
-    for idx, h in enumerate(house):
-        x, y, d = h
-        for r in range(- d, d + 1):
-            for c in range(- d, d + 1):
-                nx = x + r
-                ny = y + c
+    M = len(people)
 
-                if (nx, ny) in house_positions:
-                    continue
+    m_check = set()
+    p_check = set()
 
-                if not (-15 <= nx <= 15 and -15 <= ny <= 15):
-                    continue
+    result = float('inf')
 
-                distance = abs(x - nx) + abs(y - ny)
+    dfs(0, 0, 0, 0)
 
-                if distance <= d:
-                    dist.setdefault((nx, ny), {})
-                    dist[(nx, ny)][idx] = distance
-
-    current = float('inf')
-
-    for A in dist.values():
-        if len(A) == N:
-            current = min(current, sum(A.values()))
-
-    # 1개로 가능하다면 즉시 종료
-    if current != float('inf'):
-        print(f'#{tc} {current}')
-        continue
-
-    positions = list(dist.keys())
-    K = len(positions)
-   
-
-    for i in range(K - 1):
-        for j in range(i + 1, K):
-            A = dist[positions[i]]
-            B = dist[positions[j]]
-
-            total = 0
-
-            for h in range(N):
-                total += min(
-                    A.get(h, float('inf')),
-                    B.get(h, float('inf'))
-                )
-
-                if total == float('inf'):
-                    break
-
-            current = min(current, total)
-
-    if current == float('inf'):
-        print(f'#{tc} -1')
-    else:
-        print(f'#{tc} {current}')
+    print(f'#{tc} {result}')
