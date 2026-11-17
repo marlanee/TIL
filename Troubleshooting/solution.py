@@ -1,67 +1,46 @@
-# 261113. 기출. 헌터
-# 1차 시도: PASS
+# 261117. 합승 택시 요금
+# 1차 시도: 09:11 / 09:31 힌트 1회 / 09:41 힌트 2회 / 10:00 PASS
+# 학습 내용: 플로이드 워셜
 
 """
-목표: 상하좌우로 움직이는 헌터는 몬스터를 사냥한다.
-    1. 모든 몬스터가 처리되고 모든 고객들에게 방문하면 작업이 끝난다
-    2. 모든 작업을 완료할 수 있는 최소 시간을 구하라
-핵심로직:
-    1. 이것 역시 DFS로 풀면 간단하지 않나?
-    2. 랜덤한 몬스터를 잡고 나서 (시간은 멘헤튼 거리만큼 소요됨)
-    3. 다른 몬스터를 잡으러 가던가, 아니면 잡은 몬스터에 해당하는 고객을 방문하는 분기 생성
-    4. 몬스터도 다 잡고, 고객도 다 방문했다면 시간 갱신.
-    5. 일단 해볼까.
+목표: A, B 두 사람이 택시를 같이 타려고 한다.
+    1. 가는 길에 두 사람이 택시를 같이 탈 수도 있고, 각자 탈 수도 있다.
+    2. 간선마다 요금이 다르며, 이동 방향에 상관없이 요금은 동일하다.
+    3. n, s, a, b, fares = 지점 개수, S출발지, A도착지, B도착지, 지점 사이 택시요금
+    4. A, B가 s에서 출발해서 각각의 도착 지점까지 택시를 타고 갈 때, 최저 예상 택시요금을 return하라
+    5. 합승을 하지 않을 수도 있다
+핵심로직: 
+    1. 합승을 한다면, 출발지부터 임의의 지점까지 하게 될 것이다.
+        / 따로 가다가 합승하는 경우는 어떠한 경우에도 비효율적이다
+    2. 한 번 간 길을 다시 돌아오는 경우도 비효율적이다.
+    ##3. 모든 정점 사이의 최단 거리를 구하는 플로이드 워셜 알고리즘을 사용해야 한다
 """
 
-def dfs(r, c, time, meet):
-    global result
-    if time >= result:
-        return
+def solution(n, s, a, b, fares):
+    INF = float('inf')
+    dist = [[INF] * (n + 1) for _ in range(n + 1)]
 
-    if meet == M:
-        result = time
-        return
+    for i in range(1, n + 1):   # 우측 하단 대각선을 모두 0으로 만든다? 왜? 
+        dist[i][i] = 0  # 아니구나, 자기 자신에게 가는 비용을 0으로 만든거구나.
 
-    # 몬스터를 잡으러 가는 코드 작성
-    for i in range(1, M + 1):
-        if i not in m_check:
-            m_check.add(i)
-            mr, mc = monster[i]
-            dfs(mr, mc, time + abs(r - mr) + abs(c - mc), meet)
-            m_check.remove(i)
+    for u, v, cost in fares:    # u -> v, v -> u로 가는 비용을 cost에 저장하는거구나.
+        dist[u][v] = cost
+        dist[v][u] = cost
+    # 플로이드 워셜의 핵심: 다른 지점을 경유하는 것이 더 저렴하면 거리 배열을 갱신한다.
+    for k in range(1, n + 1):
+        for i in range(1, n + 1):
+            for j in range(1, n + 1):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
 
-    # 고객을 만나러 가는 코드 작성
-    for j in range(1, M + 1):
-        if j in m_check and j not in p_check:
-            p_check.add(j)
-            pr, pc = people[j]
-            dfs(pr, pc, time + abs(r - pr) + abs(c - pc), meet + 1)
-            p_check.remove(j)
+    answer = INF
+
+    for i in range(n + 1):
+        together = dist[s][i]
+        if together >= answer:
+            continue
+        A_alone = dist[i][a]
+        B_alone = dist[i][b]
+
+        answer = min(answer, together + A_alone + B_alone)
     
-
-T = int(input())
-for tc in range(1, T + 1):
-    N = int(input())
-    grid = [list(map(int, input().split())) for _ in range(N)]
-
-    people = {}
-    monster = {}
-
-    for r in range(N):
-        for c in range(N):
-            current = grid[r][c]
-            if current < 0:
-                people[-current] = (r, c)
-            elif current > 0:
-                monster[current] = (r, c)
-
-    M = len(people)
-
-    m_check = set()
-    p_check = set()
-
-    result = float('inf')
-
-    dfs(0, 0, 0, 0)
-
-    print(f'#{tc} {result}')
+    return answer
