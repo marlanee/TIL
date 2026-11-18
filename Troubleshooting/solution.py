@@ -1,46 +1,52 @@
-# 261117. 합승 택시 요금
-# 1차 시도: 09:11 / 09:31 힌트 1회 / 09:41 힌트 2회 / 10:00 PASS
-# 학습 내용: 플로이드 워셜
+# 261118. 광고 삽입
+# 1차 시도: 10:09
 
 """
-목표: A, B 두 사람이 택시를 같이 타려고 한다.
-    1. 가는 길에 두 사람이 택시를 같이 탈 수도 있고, 각자 탈 수도 있다.
-    2. 간선마다 요금이 다르며, 이동 방향에 상관없이 요금은 동일하다.
-    3. n, s, a, b, fares = 지점 개수, S출발지, A도착지, B도착지, 지점 사이 택시요금
-    4. A, B가 s에서 출발해서 각각의 도착 지점까지 택시를 타고 갈 때, 최저 예상 택시요금을 return하라
-    5. 합승을 하지 않을 수도 있다
-핵심로직: 
-    1. 합승을 한다면, 출발지부터 임의의 지점까지 하게 될 것이다.
-        / 따로 가다가 합승하는 경우는 어떠한 경우에도 비효율적이다
-    2. 한 번 간 길을 다시 돌아오는 경우도 비효율적이다.
-    ##3. 모든 정점 사이의 최단 거리를 구하는 플로이드 워셜 알고리즘을 사용해야 한다
+목표: logs에 사용자들의 시청 기록이 주어진다
+    1. 시청 기록이 가장 오래 겹치는 구간에 adv_time을 배치하여 광고를 오래 시청하게 만들어라.
+    2. play_time은 동영상의 전체 길이이다.
+    3. 광고를 최대 시청 시간으로 만드는 시작 시각을 반환하라
+    4. 만약 광고 최대 시청 시간이 동일할 경우, 가장 빠른 시작 시각을 반환하라
+핵심로직:
+    1. 시, 분, 초를 초 단위로 변환하자. / 데이터 사용의 편리성을 올려주기 위함이다.
+    2. play_time 길이 만큼의 리스트를 만들어서 [0] * len(play_time) + 1각 사용자 구간별로 1씩 더한다?
+    3. 반복문으로 리스트를 순회하며 adv_time 만큼의 길이를 슬라이싱해서 최대 합을 구한다? 최대값일 경우 시작점을 갱신한다? 같으면 저장 안하고?
+    4. 이거 너무 시간복잡도가 높지 않나? logs 길이 30만에, play_time 길이 36만? 합연산이라 괜찮으려나?
 """
 
-def solution(n, s, a, b, fares):
-    INF = float('inf')
-    dist = [[INF] * (n + 1) for _ in range(n + 1)]
+def solution(play_time, adv_time, logs):
+    def to_seconds(time):
+        h, m, s = map(int, time.split(':'))
+        return h * 3600 + m * 60 + s
 
-    for i in range(1, n + 1):   # 우측 하단 대각선을 모두 0으로 만든다? 왜? 
-        dist[i][i] = 0  # 아니구나, 자기 자신에게 가는 비용을 0으로 만든거구나.
+    s_play_time = to_seconds(play_time)
+    find_user = [0] * (s_play_time + 1)
 
-    for u, v, cost in fares:    # u -> v, v -> u로 가는 비용을 cost에 저장하는거구나.
-        dist[u][v] = cost
-        dist[v][u] = cost
-    # 플로이드 워셜의 핵심: 다른 지점을 경유하는 것이 더 저렴하면 거리 배열을 갱신한다.
-    for k in range(1, n + 1):
-        for i in range(1, n + 1):
-            for j in range(1, n + 1):
-                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+    for user_log in logs:
+        start, end = user_log.split('-')
+        s_start = to_seconds(start)
+        s_end = to_seconds(end)
 
-    answer = INF
+        find_user[s_start] += 1
+        find_user[s_end] -= 1
 
-    for i in range(n + 1):
-        together = dist[s][i]
-        if together >= answer:
-            continue
-        A_alone = dist[i][a]
-        B_alone = dist[i][b]
+    for i in range(1, s_play_time + 1):
+        find_user[i] += find_user[i - 1]
 
-        answer = min(answer, together + A_alone + B_alone)
-    
+    s_adv_time = to_seconds(adv_time)
+    s_answer = 0
+    total = current = sum(find_user[:s_adv_time])
+
+    for i in range(s_adv_time, s_play_time):
+        current -= find_user[i - s_adv_time]
+        current += find_user[i]
+        if current > total:
+            total = current
+            s_answer = i - s_adv_time + 1
+
+    h, remainder = divmod(s_answer, 3600)
+    m, s = divmod(remainder, 60)
+
+    answer = f'{h:02d}:{m:02d}:{s:02d}' # 정수를 최소 두 자리로 표현하는 기능! 대단하다.
+
     return answer

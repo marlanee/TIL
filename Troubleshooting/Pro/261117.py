@@ -50,7 +50,7 @@ lazy = [[0, None] for _ in range(4 * N)]
 # lazy[node][1]: 대입
 
 def push(node, start, end):
-    if not lazy[node][0] and lazy[node][1] is None:
+    if not lazy[node][0] and lazy[node][1] is None: 
         return
     if start == end:
         return
